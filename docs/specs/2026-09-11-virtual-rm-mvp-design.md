@@ -2,7 +2,7 @@
 ## DỰ ÁN: MVP VIRTUAL RM (TRỢ LÝ QUAN HỆ KHÁCH HÀNG ẢO) - MSB CORPORATE BANKING
 
 - **Mã dự án**: `MSB-VIRTUAL-RM-MVP`
-- **Phiên bản**: `1.1.0`
+- **Phiên bản**: `1.1.1`
 - **Ngày lập**: 11/09/2026
 - **Ngày cập nhật**: 12/09/2026
 - **Tác giả**: Antigravity Assistant & Mr Z
@@ -14,6 +14,7 @@
 |---|---|
 | 1.0.0 | Bản đầu: 8 phân đoạn demo tuyến tính, tech stack, nhận diện thương hiệu |
 | 1.1.0 | Mở rộng thành **thư viện 17 intent gọi ngẫu nhiên**; thay `/api/agent` bằng kiến trúc nhận diện 3 tầng + numeric guard; thêm streaming TTS và cache ấm; bổ sung chương chống rủi ro sân khấu; thay tiêu chí nghiệm thu định tính bằng ngưỡng đo được; vá 2 lỗi số học của v1.0.0 |
+| 1.1.1 | Bổ sung chiến lược FIDO đa nền tảng: dò khả năng bằng `isUserVerifyingPlatformAuthenticatorAvailable()` thay vì dò hệ điều hành; ghi rõ khác biệt prompt sinh trắc học giữa iOS và Android |
 
 ### Mục đích sử dụng
 
@@ -454,19 +455,46 @@ Chạm vào Orb để ngắt lời RM, audio fade out trong 150ms và hàng đ�
 
 | Bối cảnh | Cơ chế | Lý do |
 |---|---|---|
-| `FIDO_LOGIN` (1 lần/phiên) | **WebAuthn thật** | Face ID của iPhone bật lên trước mặt khán giả — khoảnh khắc thuyết phục nhất của demo |
-| `APPROVE_FIDO`, `REJECT_ORDER`, mua CCTG, đặt lệnh FX (nhiều lần/phiên) | **Modal mô phỏng** | Lặp Face ID thật 4 lần trong một phiên làm demo chậm và gây ỉ |
+| `FIDO_LOGIN` (1 lần/phiên) | **WebAuthn thật**, có dò khả năng trước | Sinh trắc học thật bật lên trước mặt khán giả — khoảnh khắc thuyết phục nhất của demo |
+| `APPROVE_FIDO`, `REJECT_ORDER`, mua CCTG, đặt lệnh FX (nhiều lần/phiên) | **Modal mô phỏng** | Lặp sinh trắc học thật 4 lần trong một phiên làm demo chậm và gây ỉ |
 
 WebAuthn thật cần: HTTPS, `rpId` khớp domain triển khai, và credential đã đăng ký sẵn trong bước warm-up trước buổi demo.
 
-**Timeout 3 giây** cho WebAuthn — hết giờ hoặc người dùng hủy thì rơi về animation mô phỏng. Khán giả thấy Face ID thật trong trường hợp tốt, thấy hiệu ứng radar đẹp trong trường hợp xấu, **không bao giờ thấy lỗi**.
+##### Dò khả năng thay vì dò hệ điều hành
+
+Trước khi gọi WebAuthn, kiểm tra:
+
+```js
+const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+```
+
+- `true` → chạy WebAuthn thật.
+- `false` → rơi **ngay** về modal mô phỏng, không chờ hết timeout.
+
+Cách này xử lý cùng lúc nhiều tình huống mà việc dò hệ điều hành bỏ sót: iPhone chưa bật Face ID, Android thiếu Google Play Services, máy chưa đăng ký vân tay, máy chưa bật khóa màn hình.
+
+**Timeout 3 giây** áp dụng cho trường hợp `available === true` nhưng người dùng hủy hoặc cảm biến không phản hồi — rơi về animation mô phỏng. Khán giả thấy sinh trắc học thật trong trường hợp tốt, thấy hiệu ứng radar đẹp trong trường hợp xấu, **không bao giờ thấy lỗi**.
+
+##### Khác biệt iOS và Android
+
+| | iOS Safari | Android Chrome |
+|---|---|---|
+| Hỗ trợ | Face ID / Touch ID qua platform authenticator | Vân tay / mở khóa khuôn mặt, từ Android 9 (API 28) qua Google Play Services |
+| Giao diện prompt | Overlay hệ thống gọn, không có nhận diện bên thứ ba | Bottom sheet **Google Credential Manager**, hiển thị nhận diện Google |
+| Số bước | 1 | Có thể phát sinh thêm bước chọn tài khoản hoặc hỏi lưu passkey |
+| Tính đồng nhất | Cao | Phụ thuộc OEM — Samsung Internet, Xiaomi cho trải nghiệm khác nhau |
+
+**Rủi ro riêng của Android**: khoảnh khắc xác thực hiển thị thương hiệu Google giữa một demo đang thuyết phục khán giả rằng đây là ứng dụng MSB. Đây là đánh đổi đã được chấp nhận có chủ đích, để đổi lấy một đường code duy nhất cho mọi thiết bị.
+
+**Khuyến nghị vận hành**: nếu có quyền chọn thiết bị trình diễn, **ưu tiên iPhone**. Nếu buộc dùng Android, chạy thử bước đăng nhập trên đúng máy đó trong warm-up (§6.5) để biết trước bottom sheet trông thế nào và mất bao nhiêu bước.
 
 #### 6.5. Quy trình Warm-up trước Buổi demo
 
-1. Mở app trên thiết bị demo, đăng nhập để đăng ký credential WebAuthn.
-2. Mở Command Drawer, chạy lần lượt 14 intent nghiệp vụ → cache audio đầy, Service Worker cache shell.
-3. Kiểm tra time-to-first-audio hiển thị trong console ≤ 1,5s.
-4. Chạm "Bắt đầu phiên mới" để về trạng thái sạch.
+1. Trên chính thiết bị sẽ trình diễn: xác nhận đã bật khóa màn hình và đã đăng ký vân tay/khuôn mặt.
+2. Mở app, đăng nhập để đăng ký credential WebAuthn. **Quan sát kỹ prompt sinh trắc học hiện ra trông thế nào và mất mấy bước** — trên Android sẽ khác iOS (§6.4).
+3. Mở Command Drawer, chạy lần lượt 14 intent nghiệp vụ → cache audio đầy, Service Worker cache shell.
+4. Kiểm tra time-to-first-audio hiển thị trong console ≤ 1,5s.
+5. Chạm "Bắt đầu phiên mới" để về trạng thái sạch.
 
 ---
 
@@ -503,6 +531,7 @@ Tám câu `UNKNOWN` quan trọng không kém 42 câu kia: chúng kiểm chứng 
 | Không micro | 14/14 kịch bản chạy qua chip | Từ chối quyền micro rồi demo đủ |
 | Suy giảm im lặng | 0 popup lỗi hiển thị | Chủ động gây lỗi từng tầng ở §6.2 |
 | Autoplay iOS | Lời chào phát được | Kiểm trên iPhone Safari thật, không phải simulator |
+| FIDO đa nền tảng | Đăng nhập xong được trên cả iOS và Android | Chạy trên iPhone và một máy Android thật; và một lần với máy chưa đăng ký sinh trắc học để xác nhận rơi về mô phỏng, không báo lỗi |
 
 #### 7.4. Nhận diện Thương hiệu
 
