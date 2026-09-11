@@ -1,0 +1,16 @@
+# Temporary folder rule
+/.tmp
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Next.js build output
+/.next/
+/out/
+
+# Local env files
+.env*.local
+.env
+.DS_Store
