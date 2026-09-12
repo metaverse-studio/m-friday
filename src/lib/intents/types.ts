@@ -40,6 +40,16 @@ export type Intent = {
   fixtureKey: FixtureKey | null
   /** Câu dùng khi LLM lỗi hoặc numeric guard loại bỏ output */
   fallbackLine: string
+  /**
+   * Không cho LLM diễn đạt lại, luôn đọc đúng `fallbackLine`.
+   *
+   * Dành cho câu tự giới thiệu thương hiệu — tên trợ lý, tên ngân hàng,
+   * chức danh. Đó là nội dung nhận diện, sai một chữ là sai thông điệp.
+   * Ngoài ra `description` của các intent hệ thống là chú thích kỹ thuật
+   * ("Sự kiện hệ thống, tự chạy sau khi đăng nhập"), đưa vào prompt thì LLM
+   * sẽ thuyết minh về cơ chế hệ thống thay vì chào khách.
+   */
+  fixedLine?: boolean
   /** Các chuỗi số được phép xuất hiện trong lời thoại của intent này */
   allowedNumbers: string[]
   /** Ba chip gợi ý sau khi intent chạy xong */

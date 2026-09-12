@@ -110,19 +110,22 @@ export function useVoiceTurn() {
       let line = getIntent(id).fallbackLine
       setCurrentLine(line)
 
-      try {
-        const response = await fetch('/api/reply', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ intentId: id }),
-        })
-        const data = (await response.json()) as { reply: string }
-        if (data.reply) {
-          line = data.reply
-          setCurrentLine(line)
+      // Lời thoại cố định thì không có gì để LLM sinh, khỏi mất một round-trip
+      if (!intent.fixedLine) {
+        try {
+          const response = await fetch('/api/reply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ intentId: id }),
+          })
+          const data = (await response.json()) as { reply: string }
+          if (data.reply) {
+            line = data.reply
+            setCurrentLine(line)
+          }
+        } catch (error) {
+          console.error('[turn] sinh lời thoại thất bại, dùng câu mẫu:', error)
         }
-      } catch (error) {
-        console.error('[turn] sinh lời thoại thất bại, dùng câu mẫu:', error)
       }
 
       await speak(

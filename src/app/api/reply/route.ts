@@ -59,6 +59,11 @@ export async function POST(request: Request) {
 
   const intent = getIntent(targetIntentId)
 
+  // Lời tự giới thiệu không đưa qua LLM: xem chú thích `fixedLine` trong types
+  if (intent.fixedLine) {
+    return NextResponse.json({ reply: intent.fallbackLine, source: 'fixed' })
+  }
+
   try {
     // Chuỗi rỗng lọt qua numeric guard vì không chứa số nào, phải loại riêng
     const isUsable = (text: string) => text.length > 0 && isSafeReply(text, targetIntentId)

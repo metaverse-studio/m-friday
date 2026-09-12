@@ -29,7 +29,7 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'company',
     fallbackLine:
       'Chào Mr Stark. Em là Friday, Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh tại MSB Business ạ.',
-
+    fixedLine: true,
     allowedNumbers: allowedFor('company'),
     nextChips: ['CASH_FLOW', 'RECENT_ACTIONS', 'TRADE_FINANCE'],
   },
