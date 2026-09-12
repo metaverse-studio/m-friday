@@ -24,9 +24,22 @@ export async function POST(request: Request) {
       ? 'mp3'
       : 'webm'
 
-    if (!filename || filename === 'blob' || !/\.(webm|mp4|m4a|wav|ogg|mp3|flac|mpeg|mpga|opus)$/i.test(filename)) {
+    /**
+     * MIME là nguồn tin cậy, đuôi file thì không. Whisper chọn bộ giải mã theo
+     * đuôi file, nên một blob MP4 mang tên .webm sẽ bị parse sai và trả về
+     * chuỗi rỗng. Trước đây đoạn này chấp nhận mọi đuôi hợp lệ, kể cả khi nó
+     * mâu thuẫn với MIME — Safari trên iOS gửi lên đúng kiểu mâu thuẫn đó.
+     */
+    if (rawMime) {
+      filename = `speech.${ext}`
+    } else if (
+      !filename ||
+      filename === 'blob' ||
+      !/\.(webm|mp4|m4a|wav|ogg|mp3|flac|mpeg|mpga|opus)$/i.test(filename)
+    ) {
       filename = `speech.${ext}`
     }
+    console.info(`[stt] nhận ${blob.size} bytes · mime=${rawMime || '(trống)'} · gửi Whisper tên ${filename}`)
 
     const cleanMime = ext === 'mp4'
       ? 'audio/mp4'

@@ -63,6 +63,23 @@ function clearTurnState() {
   }
 }
 
+/**
+ * Đuôi file suy ra từ MIME mà bộ ghi THẬT SỰ sinh ra, không phải MIME ta xin.
+ *
+ * Safari trên iOS có lúc báo isTypeSupported('audio/webm;codecs=opus') là true
+ * rồi vẫn ghi ra MP4. Khi đó ta gửi lên file tên .webm nhưng ruột là MP4;
+ * Whisper chọn bộ giải mã theo đuôi file nên parse sai và trả về chuỗi rỗng —
+ * đúng triệu chứng "không nhận diện được giọng nói" chỉ xảy ra trên iPhone.
+ */
+function extFromMime(mime: string): string {
+  const m = mime.toLowerCase()
+  if (m.includes('mp4') || m.includes('m4a') || m.includes('aac')) return 'mp4'
+  if (m.includes('ogg')) return 'ogg'
+  if (m.includes('wav')) return 'wav'
+  if (m.includes('mpeg') || m.includes('mp3')) return 'mp3'
+  return 'webm'
+}
+
 function getAudioFormat(): { mimeType?: string; ext: string } {
   if (typeof MediaRecorder === 'undefined') return { ext: 'webm' }
   if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
@@ -255,7 +272,11 @@ export function useVoiceTurn() {
 
       const startedAt = performance.now()
       const actualMime = recorder.mimeType || format.mimeType || 'audio/webm'
+      const actualExt = extFromMime(actualMime)
       const audioBlob = new Blob(chunks, { type: actualMime })
+      console.info(
+        `[stt] xin=${format.mimeType ?? '(mặc định)'}.${format.ext} · thật=${actualMime}.${actualExt} · ${chunks.length} mảnh · ${audioBlob.size} bytes`,
+      )
 
       if (audioBlob.size < 100) {
         setListening(false)
@@ -265,13 +286,17 @@ export function useVoiceTurn() {
       }
 
       const form = new FormData()
-      form.append('audio', audioBlob, `speech.${format.ext}`)
+      form.append('audio', audioBlob, `speech.${actualExt}`)
 
       let text = ''
       try {
         const response = await fetch('/api/stt', { method: 'POST', body: form })
-        const data = (await response.json()) as { text?: string }
+        const data = (await response.json()) as { text?: string; error?: string }
         text = data.text ? data.text.trim() : ''
+        // Trước đây lỗi server bị bỏ qua, nên "Groq lỗi" và "không có tiếng
+        // nói" nhìn giống nhau y hệt — không cách nào phân biệt khi gỡ lỗi
+        if (data.error) console.error('[stt] server báo lỗi:', data.error)
+        if (!text && !data.error) console.warn('[stt] server trả về chuỗi rỗng')
       } catch (error) {
         console.error('[turn] STT thất bại:', error)
       }
@@ -299,7 +324,8 @@ export function useVoiceTurn() {
      * do nhận diện giọng nói hỏng trên iPhone nhưng chạy tốt trên Android.
      * Với MP4 phải ghi liền một mạch, lấy đúng một blob hoàn chỉnh lúc stop.
      */
-    const isFragmentedMp4 = format.ext === 'mp4' || format.ext === 'm4a'
+    // Xét MIME bộ ghi thật sự dùng, vì Safari có thể phớt lờ MIME ta xin
+    const isFragmentedMp4 = extFromMime(recorder.mimeType || format.mimeType || '') === 'mp4'
     if (isFragmentedMp4) {
       recorder.start()
     } else {
