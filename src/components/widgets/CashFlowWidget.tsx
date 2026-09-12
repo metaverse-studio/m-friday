@@ -4,17 +4,17 @@ import { fixtures } from '@/lib/data/fixtures'
 import { formatTyFixed1, formatTyRaw } from '@/lib/data/format'
 
 export function CashFlowWidget() {
-  const { daily, inflow, outflow, net } = fixtures.cashFlow
+  const { daily, days, asOfDate, inflow, outflow, net } = fixtures.cashFlow
   const peak = Math.max(...daily.map((d) => Math.max(d.inflow, d.outflow)))
 
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">
       <div className="flex items-start justify-between">
         <p className="font-bold text-[9.5px] leading-none tracking-[0.16em] uppercase text-white/45 m-0">
-          Dòng tiền 7 ngày
+          Dòng tiền {days} ngày
         </p>
         <p className="font-normal text-[9.5px] leading-none text-white/35 m-0">
-          12/09
+          {asOfDate}
         </p>
       </div>
 

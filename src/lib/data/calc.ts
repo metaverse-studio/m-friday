@@ -37,6 +37,14 @@ export function fxSaving(): number {
   return fxFloatRisk() - fxForwardCost()
 }
 
+/** Biên dòng tiền của một kỳ: (thu − chi) / thu, đơn vị phần trăm */
+export function cashMargin(period: 'this' | 'last'): number {
+  const { inflowThis, inflowLast, outflowThis, outflowLast } = fixtures.periodCompare
+  const inflow = period === 'this' ? inflowThis : inflowLast
+  const outflow = period === 'this' ? outflowThis : outflowLast
+  return ((inflow - outflow) / inflow) * 100
+}
+
 /** Tăng trưởng dòng thu so với cùng kỳ, đơn vị phần trăm */
 export function periodGrowthInflow(): number {
   const { inflowThis, inflowLast } = fixtures.periodCompare

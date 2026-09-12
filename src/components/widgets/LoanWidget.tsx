@@ -2,7 +2,7 @@ import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTy, formatTyRawFixed1 } from '@/lib/data/format'
 
 export function LoanWidget() {
-  const { outstanding, limit, nearest } = fixtures.loan
+  const { outstanding, limit, contractCount, contracts } = fixtures.loan
   const available = limit - outstanding
 
   return (
@@ -29,45 +29,26 @@ export function LoanWidget() {
 
       <div className="mt-4 pt-3.5 border-t border-white/12">
         <p className="font-bold text-[9px] leading-none tracking-[0.16em] text-msb-gold uppercase m-0">
-          03 KHẾ ƯỚC NHẬN NỢ
+          {String(contractCount).padStart(2, '0')} KHẾ ƯỚC NHẬN NỢ
         </p>
 
         <div className="mt-2.5">
-          <div className="flex justify-between items-center gap-2.5 py-3 border-b border-white/10">
-            <span className="font-medium text-[12.5px] leading-[1.35] text-white/85">
-              Khế ước gần nhất
-              <span className="block font-normal text-[10.5px] leading-[1.4] text-white/40 mt-0.5">
-                Đáo hạn {nearest.dueDate} · {formatPercent(nearest.annualRate * 100)}/năm
+          {contracts.map((contract) => (
+            <div
+              key={contract.label}
+              className="flex justify-between items-center gap-2.5 py-3 border-b border-white/10"
+            >
+              <span className="font-medium text-[12.5px] leading-[1.35] text-white/85">
+                {contract.label}
+                <span className="block font-normal text-[10.5px] leading-[1.4] text-white/40 mt-0.5">
+                  Đáo hạn {contract.dueDate} · {formatPercent(contract.annualRate * 100)}/năm
+                </span>
               </span>
-            </span>
-            <span className="font-bold text-[13px] leading-[1.3] text-white shrink-0">
-              {formatTy(nearest.amount)}
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center gap-2.5 py-3 border-b border-white/10">
-            <span className="font-medium text-[12.5px] leading-[1.35] text-white/85">
-              Khế ước 02
-              <span className="block font-normal text-[10.5px] leading-[1.4] text-white/40 mt-0.5">
-                Đáo hạn 14/10 · 6,8%/năm
+              <span className="font-bold text-[13px] leading-[1.3] text-white shrink-0">
+                {formatTy(contract.amount)}
               </span>
-            </span>
-            <span className="font-bold text-[13px] leading-[1.3] text-white shrink-0">
-              17,0 tỷ
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center gap-2.5 py-3 border-b border-white/10">
-            <span className="font-medium text-[12.5px] leading-[1.35] text-white/85">
-              Khế ước 03
-              <span className="block font-normal text-[10.5px] leading-[1.4] text-white/40 mt-0.5">
-                Đáo hạn 02/11 · 6,8%/năm
-              </span>
-            </span>
-            <span className="font-bold text-[13px] leading-[1.3] text-white shrink-0">
-              12,5 tỷ
-            </span>
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

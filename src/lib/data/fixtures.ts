@@ -6,6 +6,16 @@ const sumByDirection = (direction: 'in' | 'out'): number =>
     .filter((txn) => txn.direction === direction)
     .reduce((total, txn) => total + txn.amount, 0)
 
+/** Ngày chốt số liệu của toàn bộ bản demo */
+const DEMO_DATE = '12/09'
+
+/** Ba khế ước cộng lại đúng bằng `loan.outstanding` (42 tỷ) */
+const loanContracts = [
+  { label: 'Khế ước gần nhất', amount: 12_500_000_000, annualRate: 0.068, dueDate: '28/09' },
+  { label: 'Khế ước 02', amount: 17_000_000_000, annualRate: 0.068, dueDate: '14/10' },
+  { label: 'Khế ước 03', amount: 12_500_000_000, annualRate: 0.068, dueDate: '02/11' },
+] as const
+
 export const fixtures = {
   company: {
     name: 'Stark Industry',
@@ -19,6 +29,7 @@ export const fixtures = {
 
   cashFlow: {
     days: 7,
+    asOfDate: DEMO_DATE,
     inflow: 65_000_000_000,
     outflow: 46_800_000_000,
     net: 18_200_000_000,
@@ -38,7 +49,7 @@ export const fixtures = {
    * để LLM chép nguyên văn, khớp đúng allowedNumbers của intent.
    */
   txns: {
-    date: '12/09',
+    date: DEMO_DATE,
     count: transactions.length,
     totalInTy: formatTyRaw(sumByDirection('in')),
     totalOutTy: formatTyRaw(sumByDirection('out')),
@@ -92,8 +103,10 @@ export const fixtures = {
   loan: {
     outstanding: 42_000_000_000,
     limit: 80_000_000_000,
-    contractCount: 3,
-    nearest: { amount: 12_500_000_000, annualRate: 0.068, dueDate: '28/09' },
+    contractCount: loanContracts.length,
+    /** Khế ước xếp theo ngày đáo hạn, phần tử đầu là khoản gần nhất */
+    contracts: loanContracts,
+    nearest: loanContracts[0],
   },
 
   periodCompare: {

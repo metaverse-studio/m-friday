@@ -1,4 +1,4 @@
-import { periodGrowthInflow } from '@/lib/data/calc'
+import { cashMargin, periodGrowthInflow } from '@/lib/data/calc'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTy } from '@/lib/data/format'
 
@@ -52,7 +52,9 @@ export function PeriodCompareWidget() {
       {/* Margin */}
       <div className="flex justify-between mt-4 border-t border-white/12 pt-3 font-normal text-[12px] leading-[1.4] text-white/50">
         <span>Biên dòng tiền</span>
-        <span className="font-bold text-msb-gold">5,3% → 21,0%</span>
+        <span className="font-bold text-msb-gold">
+          {formatPercent(cashMargin('last'))} → {formatPercent(cashMargin('this'))}
+        </span>
       </div>
 
       <p className="mt-2.5 font-normal text-[10.5px] leading-[1.4] text-white/35 m-0">
