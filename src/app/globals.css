@@ -23,6 +23,7 @@
     --tracking-wide: 0.025em;
     --tracking-wider: 0.05em;
     --leading-tight: 1.25;
+    --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --blur-sm: 8px;
     --blur-md: 12px;
     --default-transition-duration: 150ms;
@@ -350,6 +351,9 @@
   .h-14 {
     height: calc(var(--spacing) * 14);
   }
+  .h-\[0\.62em\] {
+    height: 0.62em;
+  }
   .h-\[1px\] {
     height: 1px;
   }
@@ -476,6 +480,9 @@
   .w-\[38px\] {
     width: 38px;
   }
+  .w-\[72\%\] {
+    width: 72%;
+  }
   .w-\[74px\] {
     width: 74px;
   }
@@ -580,6 +587,9 @@
   }
   .animate-\[waveBar_0\.62s_ease-in-out_infinite\] {
     animation: waveBar 0.62s ease-in-out infinite;
+  }
+  .animate-pulse {
+    animation: var(--animate-pulse);
   }
   .cursor-pointer {
     cursor: pointer;
@@ -1330,6 +1340,12 @@
   }
   .text-msb-gold {
     color: var(--color-msb-gold);
+  }
+  .text-msb-gold\/70 {
+    color: color-mix(in srgb, #F79009 70%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-msb-gold) 70%, transparent);
+    }
   }
   .text-msb-orange {
     color: var(--color-msb-orange);
@@ -2087,6 +2103,11 @@
   syntax: "*";
   inherits: false;
   initial-value: 1;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
 }
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {

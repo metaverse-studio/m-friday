@@ -40,6 +40,8 @@ let pendingFidoResolve: (() => void) | null = null
 function clearTurnState() {
   activeTimers.forEach(clearTimeout)
   activeTimers = []
+  // Skeleton chỉ tắt khi có tiếng; huỷ lượt giữa chừng thì phải tắt tay
+  useSession.getState().setThinking(false)
   // Giải phóng lượt đang chờ FIDO, nếu không lời hứa sẽ treo vĩnh viễn
   if (pendingFidoResolve) {
     const resolve = pendingFidoResolve
@@ -83,7 +85,8 @@ export function useVoiceTurn() {
 
   const runIntent = useCallback(
     async (id: IntentId, startedAt?: number) => {
-      const { runIntent: markIntent, setSpeaking, recordLatency, setCurrentLine } = store.getState()
+      const { runIntent: markIntent, setSpeaking, setThinking, recordLatency, setCurrentLine } =
+        store.getState()
       const intent = getIntent(id)
 
       if (intent.requiresFido && !intent.fidoInWidget) {
@@ -99,6 +102,10 @@ export function useVoiceTurn() {
 
       markIntent(id)
       setSpeaking(true)
+      // Câu mẫu được nạp sẵn để dự phòng, nhưng chưa hiển thị: nếu LLM trả
+      // lời kịp thì chữ sẽ bị thay ngay trước mắt khách. Giữ skeleton cho
+      // tới khi có tiếng, chữ và tiếng cùng xuất hiện một lần.
+      setThinking(true)
 
       let line = getIntent(id).fallbackLine
       setCurrentLine(line)
@@ -121,6 +128,7 @@ export function useVoiceTurn() {
       await speak(
         line,
         () => {
+          setThinking(false)
           if (startedAt !== undefined) {
             const ms = Math.round(performance.now() - startedAt)
             recordLatency(ms)
@@ -133,6 +141,7 @@ export function useVoiceTurn() {
         fallbackUrlFor(id),
       )
 
+      store.getState().setThinking(false)
       store.getState().setSpeaking(false)
     },
     [store],
@@ -175,6 +184,7 @@ export function useVoiceTurn() {
     // Barge-in: đang nói mà chạm thì ngắt lời ngay
     if (isSpeaking) {
       stopSpeaking()
+      store.getState().setThinking(false)
       store.getState().setSpeaking(false)
       return
     }

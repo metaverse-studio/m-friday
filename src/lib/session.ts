@@ -13,6 +13,8 @@ type SessionState = {
   history: IntentId[]
   isListening: boolean
   isSpeaking: boolean
+  /** Đã nhận lệnh nhưng chunk audio đầu tiên chưa kịp phát */
+  isThinking: boolean
   drawerOpen: boolean
   lastLatencyMs: number | null
   fidoPrompt: { label: string; onConfirm: () => void } | null
@@ -23,6 +25,7 @@ type SessionState = {
   runIntent: (id: IntentId) => void
   setListening: (value: boolean) => void
   setSpeaking: (value: boolean) => void
+  setThinking: (value: boolean) => void
   toggleDrawer: (value: boolean) => void
   recordLatency: (ms: number) => void
   setCurrentLine: (line: string) => void
@@ -42,6 +45,7 @@ export const useSession = create<SessionState>((set) => ({
   history: [],
   isListening: false,
   isSpeaking: false,
+  isThinking: false,
   drawerOpen: false,
   lastLatencyMs: null,
   fidoPrompt: null,
@@ -63,6 +67,7 @@ export const useSession = create<SessionState>((set) => ({
 
   setListening: (value) => set({ isListening: value }),
   setSpeaking: (value) => set({ isSpeaking: value }),
+  setThinking: (value) => set({ isThinking: value }),
   toggleDrawer: (value) => set({ drawerOpen: value }),
   recordLatency: (ms) => set({ lastLatencyMs: ms }),
   setCurrentLine: (line) => set({ currentLine: line }),
@@ -82,6 +87,7 @@ export const useSession = create<SessionState>((set) => ({
       history: [],
       isListening: false,
       isSpeaking: false,
+      isThinking: false,
       drawerOpen: false,
       lastLatencyMs: null,
       fidoPrompt: null,

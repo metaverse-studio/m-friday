@@ -8,6 +8,7 @@ import { useSession } from '@/lib/session'
 import { FidoModal } from './fido/FidoModal'
 import { ChipBar } from './voice/ChipBar'
 import { Drawer } from './voice/Drawer'
+import { FridayLine, FridayText } from './voice/FridayLine'
 import { Orb } from './voice/Orb'
 import { WidgetHost } from './widgets/WidgetHost'
 
@@ -16,7 +17,6 @@ export function Dashboard() {
   const activeIntent = useSession((s) => s.activeIntent)
   const isSpeaking = useSession((s) => s.isSpeaking)
   const isListening = useSession((s) => s.isListening)
-  const currentLine = useSession((s) => s.currentLine)
   const lastLatencyMs = useSession((s) => s.lastLatencyMs)
   const greeted = useRef(false)
 
@@ -97,18 +97,9 @@ export function Dashboard() {
               <span className="font-bold text-[8.5px] sm:text-[9px] leading-none tracking-[0.16em] text-msb-gold uppercase">
                 FRIDAY · TRỢ LÝ QHKH DOANH NGHIỆP
               </span>
-              {isSpeaking && (
-                <span className="flex items-end gap-0.5 h-[11px] ml-auto">
-                  <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_infinite]" />
-                  <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_0.1s_infinite]" />
-                  <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_0.2s_infinite]" />
-                  <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_0.3s_infinite]" />
-                </span>
-              )}
+              <FridayLine />
             </div>
-            <p className="font-normal text-[12.5px] sm:text-[13px] leading-[1.45] sm:leading-[1.5] text-white/90 m-0">
-              {currentLine}
-            </p>
+            <FridayText className="font-normal text-[12.5px] sm:text-[13px] leading-[1.45] sm:leading-[1.5] text-white/90 m-0" />
           </section>
 
           {/* Main Content Area (Scrollable Widget / Open Prompts) */}
@@ -196,18 +187,9 @@ export function Dashboard() {
                   <span className="font-bold text-[9.5px] leading-none tracking-[0.16em] text-msb-gold uppercase">
                     FRIDAY · TRỢ LÝ QHKH DOANH NGHIỆP
                   </span>
-                  {isSpeaking && (
-                    <span className="flex items-end gap-0.5 h-[11px] ml-auto">
-                      <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_infinite]" />
-                      <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_0.1s_infinite]" />
-                      <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_0.2s_infinite]" />
-                      <i className="w-[2px] h-full bg-msb-gold animate-[waveBar_0.7s_ease-in-out_0.3s_infinite]" />
-                    </span>
-                  )}
+                  <FridayLine />
                 </div>
-                <p className="font-normal text-[13.5px] leading-[1.55] text-white/90 m-0">
-                  {currentLine}
-                </p>
+                <FridayText className="font-normal text-[13.5px] leading-[1.55] text-white/90 m-0" />
               </div>
 
               {/* Quick Prompts */}
