@@ -7,9 +7,13 @@ export const BUILD_VERSION = process.env.NEXT_PUBLIC_BUILD_VERSION || '0.0.0'
 export const BUILD_SHA = process.env.NEXT_PUBLIC_BUILD_SHA || 'local'
 export const BUILD_TIME = process.env.NEXT_PUBLIC_BUILD_TIME || ''
 
-/** Dạng ngắn hiển thị trên màn hình: `v0.1.0 · 05dd345 · 12/09 18:42` */
+/**
+ * Dạng ngắn hiển thị trên màn hình: `v0.1.0 · 12/09 18:42`.
+ * Không in hash: dài, khó đọc to, và mốc giờ build đã đủ để biết máy đang
+ * chạy bản nào. Hash vẫn giữ trong BUILD_SHA nếu cần tra sau.
+ */
 export function buildTag(): string {
-  const parts = [`v${BUILD_VERSION}`, BUILD_SHA]
+  const parts = [`v${BUILD_VERSION}`]
   if (BUILD_TIME) {
     const d = new Date(BUILD_TIME)
     if (!Number.isNaN(d.getTime())) {

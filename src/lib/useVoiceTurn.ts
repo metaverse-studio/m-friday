@@ -80,21 +80,62 @@ function extFromMime(mime: string): string {
   return 'webm'
 }
 
-function getAudioFormat(): { mimeType?: string; ext: string } {
-  if (typeof MediaRecorder === 'undefined') return { ext: 'webm' }
-  if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-    return { mimeType: 'audio/webm;codecs=opus', ext: 'webm' }
+/**
+ * `onstop` đã chạy chưa. Nếu bộ ghi nhận lệnh stop mà không bao giờ bắn
+ * `onstop` thì cả lượt đứng im, không báo lỗi, không đi tiếp — người dùng chỉ
+ * thấy "đang nghe" mãi. Cần một cái đồng hồ canh để lộ ra tình trạng đó.
+ */
+let onstopFired = false
+
+function watchOnstop(): void {
+  const timer = setTimeout(() => {
+    if (onstopFired) return
+    const st = useSession.getState()
+    if (!st.isListening) return
+    st.setListening(false)
+    st.setTranscript('')
+    st.setCurrentLine(
+      'Dạ bộ ghi âm trên máy không trả dữ liệu, anh chọn gợi ý bên dưới giúp em ạ. [onstop không chạy]',
+    )
+  }, 4_000)
+  activeTimers.push(timer)
+}
+
+const MIME_CANDIDATES = [
+  'audio/webm;codecs=opus',
+  'audio/webm',
+  'audio/mp4',
+  'audio/aac',
+]
+
+/**
+ * Tạo bộ ghi bằng cách THỬ DỰNG THẬT từng định dạng, không tin
+ * `isTypeSupported`.
+ *
+ * Safari có phiên bản báo `isTypeSupported('audio/webm;codecs=opus')` là true
+ * rồi `new MediaRecorder(...)` lại ném NotSupportedError. Lỗi đó nằm ngoài mọi
+ * try/catch nên cả lượt chết lặng: không nhận diện được, cũng không đi tiếp,
+ * mà không hiện lỗi gì. Dựng thử rồi rơi dần là cách duy nhất chắc chắn.
+ */
+function createRecorder(stream: MediaStream): MediaRecorder | null {
+  if (typeof MediaRecorder === 'undefined') return null
+
+  for (const mimeType of MIME_CANDIDATES) {
+    if (!MediaRecorder.isTypeSupported(mimeType)) continue
+    try {
+      return new MediaRecorder(stream, { mimeType })
+    } catch (error) {
+      console.warn(`[turn] ${mimeType} báo hỗ trợ nhưng dựng lỗi:`, error)
+    }
   }
-  if (MediaRecorder.isTypeSupported('audio/webm')) {
-    return { mimeType: 'audio/webm', ext: 'webm' }
+
+  try {
+    // Để trình duyệt tự chọn định dạng của nó
+    return new MediaRecorder(stream)
+  } catch (error) {
+    console.error('[turn] không dựng được MediaRecorder:', error)
+    return null
   }
-  if (MediaRecorder.isTypeSupported('audio/mp4')) {
-    return { mimeType: 'audio/mp4', ext: 'mp4' }
-  }
-  if (MediaRecorder.isTypeSupported('audio/aac')) {
-    return { mimeType: 'audio/aac', ext: 'm4a' }
-  }
-  return { ext: 'webm' }
 }
 
 export function useVoiceTurn() {
@@ -183,6 +224,9 @@ export function useVoiceTurn() {
           activeRecorder.stop()
         } catch {}
       }
+      // Canh cả khi bộ ghi không ở trạng thái recording: nếu nó đã inactive mà
+      // onstop chưa từng chạy thì cú chạm này vô hiệu, phải báo chứ đừng im
+      watchOnstop()
       return
     }
     // Chạm khi đang giả lập -> kích hoạt ngay kịch bản kế tiếp không cần chờ hết timer
@@ -228,8 +272,9 @@ export function useVoiceTurn() {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
         stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       }
-    } catch {
-      console.warn('[turn] không có micro, dùng giả lập theo hàng đợi demo')
+    } catch (error) {
+      console.warn('[turn] không mở được micro, dùng giả lập theo hàng đợi demo:', error)
+      setTranscript(`Không mở được micro (${(error as Error)?.name || 'lỗi'}) — dùng kịch bản mẫu`)
     }
 
     if (!stream) {
@@ -251,10 +296,19 @@ export function useVoiceTurn() {
     }
 
     activeStream = stream
-    const format = getAudioFormat()
-    const recorder = format.mimeType
-      ? new MediaRecorder(stream, { mimeType: format.mimeType })
-      : new MediaRecorder(stream)
+    const recorder = createRecorder(stream)
+    if (!recorder) {
+      stream.getTracks().forEach((t) => t.stop())
+      activeStream = null
+      setListening(false)
+      setTranscript('')
+      store
+        .getState()
+        .setCurrentLine(
+          'Dạ máy này không ghi âm được, anh chọn gợi ý bên dưới giúp em ạ. [MediaRecorder không khả dụng]',
+        )
+      return
+    }
 
     activeRecorder = recorder
     const chunks: Blob[] = []
@@ -265,23 +319,33 @@ export function useVoiceTurn() {
     }
 
     recorder.onstop = async () => {
+      onstopFired = true
       stream?.getTracks().forEach((track) => track.stop())
       activeStream = null
       activeRecorder = null
       setTranscript('Đang nhận diện giọng nói…')
 
       const startedAt = performance.now()
-      const actualMime = recorder.mimeType || format.mimeType || 'audio/webm'
+      const actualMime = recorder.mimeType || 'audio/webm'
       const actualExt = extFromMime(actualMime)
       const audioBlob = new Blob(chunks, { type: actualMime })
       console.info(
-        `[stt] xin=${format.mimeType ?? '(mặc định)'}.${format.ext} · thật=${actualMime}.${actualExt} · ${chunks.length} mảnh · ${audioBlob.size} bytes`,
+        `[stt] bộ ghi dùng ${actualMime} -> .${actualExt} · ${chunks.length} mảnh · ${audioBlob.size} bytes`,
       )
+
+      // Hậu tố kỹ thuật đi kèm mọi thông báo lỗi. Không có nó thì mọi kiểu
+      // hỏng đều hiện một câu y hệt nhau, và gỡ lỗi trên điện thoại thật là
+      // đoán mò — đúng tình trạng đã xảy ra mấy lượt.
+      const chanDoan = `${actualExt} · ${chunks.length} mảnh · ${Math.round(audioBlob.size / 1024)}KB`
 
       if (audioBlob.size < 100) {
         setListening(false)
         setTranscript('')
-        store.getState().setCurrentLine('Dạ em chưa nhận diện được âm thanh, anh vui lòng thử lại hoặc chọn gợi ý bên dưới ạ.')
+        store
+          .getState()
+          .setCurrentLine(
+            `Dạ em chưa thu được âm thanh, anh vui lòng thử lại hoặc chọn gợi ý bên dưới ạ. [${chanDoan}]`,
+          )
         return
       }
 
@@ -289,22 +353,34 @@ export function useVoiceTurn() {
       form.append('audio', audioBlob, `speech.${actualExt}`)
 
       let text = ''
+      let liDo = ''
       try {
         const response = await fetch('/api/stt', { method: 'POST', body: form })
         const data = (await response.json()) as { text?: string; error?: string }
         text = data.text ? data.text.trim() : ''
         // Trước đây lỗi server bị bỏ qua, nên "Groq lỗi" và "không có tiếng
         // nói" nhìn giống nhau y hệt — không cách nào phân biệt khi gỡ lỗi
-        if (data.error) console.error('[stt] server báo lỗi:', data.error)
-        if (!text && !data.error) console.warn('[stt] server trả về chuỗi rỗng')
+        if (data.error) {
+          liDo = data.error
+          console.error('[stt] server báo lỗi:', data.error)
+        } else if (!text) {
+          liDo = 'không nghe ra tiếng nói'
+          console.warn('[stt] server trả về chuỗi rỗng')
+        }
+        if (!response.ok) liDo = `HTTP ${response.status} ${liDo}`.trim()
       } catch (error) {
+        liDo = 'không gọi được /api/stt'
         console.error('[turn] STT thất bại:', error)
       }
 
       if (!text) {
         setListening(false)
         setTranscript('')
-        store.getState().setCurrentLine('Dạ em chưa nhận diện được giọng nói, anh vui lòng thử lại hoặc chọn gợi ý bên dưới ạ.')
+        store
+          .getState()
+          .setCurrentLine(
+            `Dạ em chưa nhận diện được giọng nói, anh vui lòng thử lại hoặc chọn gợi ý bên dưới ạ. [${liDo} · ${chanDoan}]`,
+          )
         return
       }
 
@@ -325,7 +401,8 @@ export function useVoiceTurn() {
      * Với MP4 phải ghi liền một mạch, lấy đúng một blob hoàn chỉnh lúc stop.
      */
     // Xét MIME bộ ghi thật sự dùng, vì Safari có thể phớt lờ MIME ta xin
-    const isFragmentedMp4 = extFromMime(recorder.mimeType || format.mimeType || '') === 'mp4'
+    const isFragmentedMp4 = extFromMime(recorder.mimeType || '') === 'mp4'
+    onstopFired = false
     if (isFragmentedMp4) {
       recorder.start()
     } else {
@@ -341,6 +418,7 @@ export function useVoiceTurn() {
           } catch {}
         }
         recorder.stop()
+        watchOnstop()
       }
     }, 5_000)
     activeTimers.push(autoStop)

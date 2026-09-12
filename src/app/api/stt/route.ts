@@ -77,10 +77,17 @@ export async function POST(request: Request) {
       text = ''
     }
 
-    return NextResponse.json({ text })
+    return NextResponse.json({ text, detail: `${filename} ${blob.size}B` })
   } catch (error: any) {
-    console.error('[stt] thất bại:', error?.message || error)
-    return NextResponse.json({ text: '', error: error?.message || 'STT failed' })
+    const raw = String(error?.message || error || 'STT failed')
+    // Rút gọn lỗi Groq về phần đọc được trên một dòng hẹp của điện thoại
+    const code = /"code"\s*:\s*"([^"]+)"/.exec(raw)?.[1]
+    const status = /\b(4\d\d|5\d\d)\b/.exec(raw)?.[1]
+    console.error('[stt] thất bại:', raw)
+    return NextResponse.json({
+      text: '',
+      error: [status, code].filter(Boolean).join(' ') || raw.slice(0, 80),
+    })
   }
 }
 
