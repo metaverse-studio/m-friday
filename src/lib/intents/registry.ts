@@ -1,6 +1,7 @@
 import { formatTrieu, formatTy, formatTyFixed1 } from '../data/format'
 import { cctgYield, obligationTotal } from '../data/calc'
 import { fixtures } from '../data/fixtures'
+import { allowedFor } from './allowed'
 import type { Intent, IntentId } from './types'
 
 const f = fixtures
@@ -14,7 +15,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     description: 'Sự kiện hệ thống, không kích hoạt bằng giọng nói.',
     fixtureKey: null,
     fallbackLine: '',
-    allowedNumbers: [],
+
+    allowedNumbers: allowedFor(null),
     nextChips: [],
   },
 
@@ -27,7 +29,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'company',
     fallbackLine:
       'Chào Mr Stark. Em là Friday, Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh tại MSB Business ạ.',
-    allowedNumbers: [],
+
+    allowedNumbers: allowedFor('company'),
     nextChips: ['CASH_FLOW', 'RECENT_ACTIONS', 'TRADE_FINANCE'],
   },
 
@@ -42,7 +45,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fallbackLine: `Dạ em báo cáo Mr Stark, trong 7 ngày qua dòng tiền doanh nghiệp thặng dư ròng ${formatTy(
       f.cashFlow.net,
     )} VNĐ, các khoản thu từ đối tác đã về đầy đủ đúng hạn ạ.`,
-    allowedNumbers: ['7', '65', '65,0', '46,8', '18,2'],
+
+    allowedNumbers: allowedFor('cashFlow'),
     nextChips: ['SUGGEST_CCTG', 'OBLIGATION_CALENDAR', 'PERIOD_COMPARE'],
   },
 
@@ -55,7 +59,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'periodCompare',
     fallbackLine:
       'Dạ em báo cáo anh, Tháng 8 năm nay công ty thu về 248 tỷ, tăng 19,8% so với 207 tỷ cùng kỳ năm ngoái ạ.',
-    allowedNumbers: ['8', '248', '207', '196', '174', '19,8', '12,6'],
+
+    allowedNumbers: allowedFor('periodCompare', ['19,8', '12,6']),
     nextChips: ['CASH_FLOW', 'LOAN_BALANCE', 'OBLIGATION_CALENDAR'],
   },
 
@@ -70,7 +75,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fallbackLine: `Dạ em báo cáo anh, trong 30 ngày tới công ty cần chi khoảng ${formatTy(
       obligationTotal(),
     )} VNĐ cho thuế, lương và dự phòng vận hành. Số dư hiện tại hoàn toàn đủ đáp ứng ạ.`,
-    allowedNumbers: ['30', '20/09', '25/09', '2,8', '4,1', '320', '3,2', '10,1', '27,5'],
+
+    allowedNumbers: allowedFor('obligations', ['30', '10,1', '27,5']),
     nextChips: ['SUGGEST_CCTG', 'LOAN_BALANCE', 'CASH_FLOW'],
   },
 
@@ -83,7 +89,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'txns',
     fallbackLine:
       'Dạ em đưa lên bảng kê biến động số dư các tài khoản thanh toán VNĐ và USD trong ngày để anh xem ạ.',
-    allowedNumbers: [f.txns.date, String(f.txns.count), f.txns.totalInTy, f.txns.totalOutTy],
+
+    allowedNumbers: allowedFor('txns'),
     nextChips: ['CASH_FLOW', 'RECENT_ACTIONS', 'PERIOD_COMPARE'],
   },
 
@@ -98,7 +105,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fallbackLine: `Dạ em báo cáo anh, trong phiên sáng nay hệ thống đã thực hiện thành công 12/12 lệnh hạch toán với tổng giá trị ${formatTy(
       f.session.postedValue,
     )} VNĐ. Hiện có 02 lệnh thanh toán quốc tế và 01 đề nghị bảo lãnh chờ anh phê duyệt ạ.`,
-    allowedNumbers: ['12', '12/12', '48,5', '02', '2', '01', '1'],
+
+    allowedNumbers: allowedFor('session', ['12/12']),
     nextChips: ['FRAUD_ALERT', 'TRADE_FINANCE', 'TXN_HISTORY'],
   },
 
@@ -111,7 +119,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'tradeFinance',
     fallbackLine:
       'Dạ em báo cáo anh, hạn mức L/C khả dụng của công ty là 18 tỷ trên tổng 50 tỷ, hạn mức bảo lãnh còn 11,5 tỷ trên tổng 30 tỷ ạ.',
-    allowedNumbers: ['18', '18,0', '50', '50,0', '11,5', '30', '30,0', '250.000', '250', '5,2', '25/09'],
+
+    allowedNumbers: allowedFor('tradeFinance'),
     nextChips: ['APPROVE_FIDO', 'FX_FORWARD', 'REJECT_ORDER'],
   },
 
@@ -125,7 +134,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fallbackLine: `Em phát hiện một lệnh chuyển ${formatTrieu(
       f.fraud.amount,
     )} VNĐ tới tài khoản thụ hưởng lần đầu giao dịch, tạo ngoài giờ hành chính. Em tạm giữ lại chờ anh xác nhận ạ.`,
-    allowedNumbers: ['850', '23:47', '11/09'],
+
+    allowedNumbers: allowedFor('fraud'),
     nextChips: ['REJECT_ORDER', 'RECENT_ACTIONS', 'CALL_HOTLINE'],
   },
 
@@ -138,7 +148,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'tradeFinance',
     fallbackLine:
       'Em đã ghi nhận phê duyệt của anh. Bảo lãnh thực hiện hợp đồng dự án KCN VSIP III đã được ký duyệt điện tử thành công ạ.',
-    allowedNumbers: ['5,2'],
+
+    allowedNumbers: allowedFor('tradeFinance'),
     nextChips: ['RECENT_ACTIONS', 'FRAUD_ALERT', 'SESSION_SUMMARY'],
     requiresFido: true,
     fidoLabel: `Ký duyệt bảo lãnh ${f.tradeFinance.pendingGuarantee.project} · ${formatTy(
@@ -155,8 +166,7 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'fraud',
     fallbackLine:
       'Em đã trả lệnh về cho Maker kèm ghi chú của anh. Kế toán sẽ nhận được thông báo ngay ạ.',
-    // Lát fixture là `fraud`, nên phải cho phép đúng các số của lệnh bị trả về
-    allowedNumbers: ['850', '23:47', '11/09'],
+    allowedNumbers: allowedFor('fraud'),
     nextChips: ['RECENT_ACTIONS', 'FRAUD_ALERT', 'SESSION_SUMMARY'],
     requiresFido: true,
     fidoLabel: `Trả lệnh ${formatTrieu(f.fraud.amount)} VNĐ về Maker ${f.fraud.makerName}`,
@@ -175,7 +185,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     )} mua Chứng chỉ tiền gửi MSB kỳ hạn 15 ngày, lãi suất 5,4% một năm, dự tính đem lại ${formatTrieu(
       cctgYield(),
     )} VNĐ ạ.`,
-    allowedNumbers: ['27,5', '10,1', '17,4', '15', '15,0', '5,4', '33,3', '2,4'],
+
+    allowedNumbers: allowedFor('cctg', ['27,5', '10,1', '17,4', '33,3']),
     nextChips: ['OBLIGATION_CALENDAR', 'LOAN_BALANCE', 'CASH_FLOW'],
     requiresFido: true,
     fidoInWidget: true,
@@ -192,7 +203,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'fx',
     fallbackLine:
       'Tỷ giá bán USD của MSB hiện là 26.180 và đã tăng 1,5% trong hai tuần qua. Em gợi ý anh khóa tỷ giá kỳ hạn ở mức 26.310 để phòng ngừa rủi ro ạ.',
-    allowedNumbers: ['26.180', '26.310', '1,5', '250.000', '250', '25/09', '98,2', '32,5', '65,7'],
+
+    allowedNumbers: allowedFor('fx', ['250.000', '250', '25/09', '98,2', '32,5', '65,7']),
     nextChips: ['TRADE_FINANCE', 'CASH_FLOW', 'OBLIGATION_CALENDAR'],
     requiresFido: true,
     fidoInWidget: true,
@@ -209,7 +221,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fallbackLine: `Dạ em báo cáo anh, tổng dư nợ vay ngắn hạn của công ty là ${formatTy(
       f.loan.outstanding,
     )} trên hạn mức 80 tỷ. Công ty đang có 3 khế ước nhận nợ ạ.`,
-    allowedNumbers: ['42', '42,0', '80', '38', '3', '12,5', '6,8', '28/09'],
+
+    allowedNumbers: allowedFor('loan', ['38', '38,0']),
     nextChips: ['CASH_FLOW', 'OBLIGATION_CALENDAR', 'SUGGEST_CCTG'],
   },
 
@@ -222,7 +235,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'contacts',
     fallbackLine:
       'Dạ em đang kết nối Mr Stark tới Giám đốc Quan hệ Khách hàng Doanh nghiệp phụ trách là anh Nguyễn Văn A, hoặc Hotline MSB Priority ạ.',
-    allowedNumbers: ['0988.123.456', '1800', '59', '9999'],
+
+    allowedNumbers: allowedFor('contacts'),
     nextChips: ['RECENT_ACTIONS', 'CASH_FLOW', 'SESSION_SUMMARY'],
   },
 
@@ -235,8 +249,7 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'session',
     fallbackLine:
       'Em đã tổng hợp phiên làm việc và gửi báo cáo vào email của anh. Chúc anh một ngày làm việc hiệu quả ạ.',
-    // Lát fixture là `session`, dùng chung allowlist với RECENT_ACTIONS
-    allowedNumbers: ['12', '12/12', '48,5', '02', '2', '01', '1'],
+    allowedNumbers: allowedFor('session', ['12/12']),
     nextChips: ['CASH_FLOW', 'RECENT_ACTIONS', 'CALL_HOTLINE'],
   },
 
@@ -250,8 +263,7 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'contacts',
     fallbackLine:
       'Dạ câu này nằm ngoài phạm vi em hỗ trợ trực tiếp. Để đảm bảo chính xác cho anh, em xin phép chuyển sang anh Nguyễn Văn A, Giám đốc Quan hệ Khách hàng phụ trách tài khoản của mình ạ.',
-    // Lát fixture là `contacts`, cho phép số điện thoại RM và hotline
-    allowedNumbers: ['0988.123.456', '1800', '59', '9999'],
+    allowedNumbers: allowedFor('contacts'),
     nextChips: ['CALL_HOTLINE', 'CASH_FLOW', 'RECENT_ACTIONS'],
   },
 }

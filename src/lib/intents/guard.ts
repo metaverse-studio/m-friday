@@ -1,16 +1,8 @@
+import { extractNumberTokens, trimTrailingSeparator } from './numbers'
 import { getIntent } from './registry'
 import type { IntentId } from './types'
 
-/** Khớp chuỗi số có thể chứa dấu chấm, phẩy hoặc gạch chéo ở giữa */
-const NUMBER_PATTERN = /\d+(?:[.,/:]\d+)*/g
-
-function trimTrailingSeparator(token: string): string {
-  return token.replace(/[.,/:]+$/, '')
-}
-
-export function extractNumberTokens(text: string): string[] {
-  return (text.match(NUMBER_PATTERN) ?? []).map(trimTrailingSeparator)
-}
+export { extractNumberTokens }
 
 export function findViolations(text: string, allowed: string[]): string[] {
   const allowedSet = new Set(allowed.map(trimTrailingSeparator))
