@@ -62,7 +62,10 @@ export const vieneuTts: TtsProvider = {
         }),
         // Mảnh sau được tải trong lúc mảnh đầu đang phát nên có dư thời gian;
         // timeout ngắn chỉ làm tăng tỷ lệ rơi provider một cách vô ích.
-        signal: AbortSignal.timeout(10_000),
+        // Giữ dưới 10s vì serverless function của Vercel cắt ở mốc đó — hết
+        // giờ ở tầng fetch thì còn rơi về câu mẫu, hết giờ ở tầng function
+        // thì khách nhận 504 và mất luôn đường dự phòng.
+        signal: AbortSignal.timeout(8_000),
       })
 
       if (!response.ok) {
