@@ -24,7 +24,7 @@ async function buildCss() {
   const template = `@import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --color-obsidian: #0D2745;
   --color-sapphire: #101520;
   --color-card: #131A27;
@@ -142,7 +142,7 @@ html, body {
   background-color: #0D2745;
   background-image: linear-gradient(115deg, #0D2745 0%, #232323 49%, #4B372B 92%);
   color: white;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
 }
@@ -155,18 +155,21 @@ html, body {
   scrollbar-width: none;
 }
 
-/* --- Figma Inter Typography Utilities --- */
-.font-title-bold { font-family: 'Inter', sans-serif; font-size: 18px; line-height: 24px; font-weight: 700; }
-.font-title-semibold { font-family: 'Inter', sans-serif; font-size: 18px; line-height: 24px; font-weight: 600; }
-.font-title-medium { font-family: 'Inter', sans-serif; font-size: 18px; line-height: 24px; font-weight: 500; }
-.font-base-semibold { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 24px; font-weight: 600; }
-.font-base-medium { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 24px; font-weight: 500; }
-.font-base-regular { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 24px; font-weight: 400; }
-.font-small-semibold { font-family: 'Inter', sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; }
-.font-small-medium { font-family: 'Inter', sans-serif; font-size: 14px; line-height: 20px; font-weight: 500; }
-.font-small-regular { font-family: 'Inter', sans-serif; font-size: 14px; line-height: 20px; font-weight: 400; }
-.font-caption-medium { font-family: 'Inter', sans-serif; font-size: 12px; line-height: 16px; font-weight: 500; }
-.font-caption-regular { font-family: 'Inter', sans-serif; font-size: 12px; line-height: 16px; font-weight: 400; }
+/* --- Thang chữ MSB Business, đọc từ Figma "[MB] Chuyển tiền đơn - [CTB EB]" ---
+   Tên class khớp tên text style trong thiết kế: H3 / Title / Base / Small / Caption */
+.font-h3-bold { font-family: var(--font-inter), sans-serif; font-size: 22px; line-height: 32px; font-weight: 700; }
+.font-h3-semibold { font-family: var(--font-inter), sans-serif; font-size: 22px; line-height: 32px; font-weight: 600; }
+.font-title-bold { font-family: var(--font-inter), sans-serif; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.27px; }
+.font-title-semibold { font-family: var(--font-inter), sans-serif; font-size: 18px; line-height: 24px; font-weight: 600; }
+.font-title-medium { font-family: var(--font-inter), sans-serif; font-size: 18px; line-height: 24px; font-weight: 500; }
+.font-base-semibold { font-family: var(--font-inter), sans-serif; font-size: 16px; line-height: 24px; font-weight: 600; }
+.font-base-medium { font-family: var(--font-inter), sans-serif; font-size: 16px; line-height: 24px; font-weight: 500; }
+.font-base-regular { font-family: var(--font-inter), sans-serif; font-size: 16px; line-height: 24px; font-weight: 400; }
+.font-small-semibold { font-family: var(--font-inter), sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; }
+.font-small-medium { font-family: var(--font-inter), sans-serif; font-size: 14px; line-height: 20px; font-weight: 500; }
+.font-small-regular { font-family: var(--font-inter), sans-serif; font-size: 14px; line-height: 20px; font-weight: 400; }
+.font-caption-medium { font-family: var(--font-inter), sans-serif; font-size: 12px; line-height: 16px; font-weight: 500; }
+.font-caption-regular { font-family: var(--font-inter), sans-serif; font-size: 12px; line-height: 16px; font-weight: 400; }
 
 /* --- Design System Component Classes --- */
 .card-glass {

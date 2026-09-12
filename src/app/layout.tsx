@@ -1,8 +1,22 @@
 import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import type { ReactNode } from 'react'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import { InstallPromptModal } from '@/components/pwa/InstallPromptModal'
 import './globals.css'
+
+/**
+ * Thiết kế MSB Business dùng Inter ở cả 4 weight 400/500/600/700 (đọc từ
+ * Figma "[MB] Chuyển tiền đơn - [CTB EB]"). next/font tự host file woff2 dưới
+ * /_next/static/media nên service worker precache được — bản demo chạy
+ * offline vẫn đúng font, thay vì rơi về system-ui như khi nạp từ CDN.
+ * Subset vietnamese là bắt buộc: toàn bộ lời thoại là tiếng Việt có dấu.
+ */
+const inter = Inter({
+  subsets: ['latin', 'vietnamese'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'MSB Business',
@@ -30,15 +44,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="vi">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        />
-      </head>
+    <html lang="vi" className={inter.variable}>
       <body className="min-h-dvh bg-obsidian text-white antialiased font-sans">
         <ServiceWorkerRegister />
         <InstallPromptModal />
