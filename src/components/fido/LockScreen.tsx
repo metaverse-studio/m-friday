@@ -31,7 +31,16 @@ export function LockScreen() {
     setScanning(true)
     setLockHint('Đang xác thực sinh trắc học…')
 
-    void Promise.all([auth, new Promise((resolve) => setTimeout(resolve, 1500))]).then(() => {
+    /**
+     * Mở khóa KHÔNG được phụ thuộc vào việc khách bấm xong Face ID.
+     * WebAuthn để timeout 60s cho hộp thoại sinh trắc học có đủ thời gian
+     * sống, nhưng nếu chờ đúng promise đó thì màn hình khóa đứng cả phút khi
+     * khách bỏ qua — trên sân khấu là chết. Chờ tối đa 10s rồi đi tiếp; xác
+     * thực xong sớm hơn thì mở sớm hơn.
+     */
+    const toiThieu = new Promise((resolve) => setTimeout(resolve, 1500))
+    const choToiDa = new Promise((resolve) => setTimeout(resolve, 10_000))
+    void Promise.all([toiThieu, Promise.race([auth, choToiDa])]).then(() => {
       setScanning(false)
       unlock()
     })

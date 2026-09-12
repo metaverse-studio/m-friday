@@ -42,9 +42,9 @@ export async function authenticate(
   knownAvailable?: boolean,
 ): Promise<'real' | 'simulated'> {
   if (knownAvailable === false) return 'simulated'
-  if (knownAvailable === undefined && !(await hasPlatformAuthenticator())) {
-    return 'simulated'
-  }
+  // knownAvailable === undefined: khách chạm trước khi dò xong. Không await
+  // gì ở đây cả — gọi thẳng create(), máy không hỗ trợ thì nó tự reject nhanh.
+  // Await chỗ này là tiêu user gesture của Safari, đúng lỗi đang sửa.
 
   try {
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null

@@ -3,15 +3,47 @@ import { getCached, putCached, type CachedAudio } from './cache'
 const MAX_CHUNK_LENGTH = 90
 
 let audioContext: AudioContext | null = null
-let currentAudio: HTMLAudioElement | null = null
 let currentCleanup: (() => void) | null = null
 let playToken = 0
+
+/** WAV im lặng dài 0 giây, chỉ để "mồi" thẻ audio trong user gesture */
+const SILENT_WAV =
+  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA='
+
+/**
+ * Một thẻ audio duy nhất, dùng lại cho mọi mảnh thoại.
+ *
+ * iOS cấp quyền phát cho TỪNG phần tử audio, không cấp cho cả trang. Một thẻ
+ * `new Audio()` vừa khởi tạo ngoài user gesture sẽ bị chặn ngay khi gọi play()
+ * — nên cách duy nhất chạy được là mồi đúng một thẻ trong lúc khách chạm nút,
+ * rồi về sau chỉ đổi `src` trên chính thẻ đó.
+ */
+let sharedAudio: HTMLAudioElement | null = null
 
 /**
  * PHẢI gọi bên trong một user gesture (ví dụ handler của nút đăng nhập).
  * iOS Safari chặn mọi lần phát audio sau đó nếu bước này bị bỏ qua.
  */
 export function unlockAudio(): void {
+  if (!sharedAudio) {
+    try {
+      sharedAudio = new Audio()
+      sharedAudio.preload = 'auto'
+      sharedAudio.setAttribute('playsinline', '')
+      sharedAudio.hidden = true
+      // Gắn vào DOM: iOS phát ổn định hơn với phần tử thật, và nhờ đó soi
+      // được trạng thái thẻ bằng Web Inspector khi cần gỡ lỗi
+      document.body.appendChild(sharedAudio)
+      // Giữ nguyên thẻ này mãi mãi: mất nó là mất quyền phát trên iOS
+      sharedAudio.src = SILENT_WAV
+      void sharedAudio.play().catch((error) => {
+        console.warn('[audio] mồi thẻ audio thất bại:', error)
+      })
+    } catch (error) {
+      console.error('[audio] không tạo được thẻ audio:', error)
+    }
+  }
+
   if (audioContext) {
     if (audioContext.state === 'suspended') {
       void audioContext.resume()
@@ -89,9 +121,15 @@ function playBlob(blob: Blob, token: number): Promise<void> {
   return new Promise((resolve) => {
     if (token !== playToken) return resolve()
 
+    // Chưa có thẻ đã mồi tức là unlockAudio() không chạy trong user gesture.
+    // Tạo thẻ mới ở đây thì iOS chặn, nhưng desktop vẫn phát được.
+    if (!sharedAudio) {
+      console.warn('[audio] chưa mồi thẻ audio, iOS sẽ chặn lần phát này')
+      sharedAudio = new Audio()
+    }
+    const audio = sharedAudio
+
     const url = URL.createObjectURL(blob)
-    const audio = new Audio(url)
-    currentAudio = audio
 
     let settled = false
     const cleanup = () => {
@@ -100,7 +138,6 @@ function playBlob(blob: Blob, token: number): Promise<void> {
       audio.onended = null
       audio.onerror = null
       URL.revokeObjectURL(url)
-      if (currentAudio === audio) currentAudio = null
       if (currentCleanup === cleanup) currentCleanup = null
       resolve()
     }
@@ -108,6 +145,7 @@ function playBlob(blob: Blob, token: number): Promise<void> {
     currentCleanup = cleanup
     audio.onended = cleanup
     audio.onerror = cleanup
+    audio.src = url
     void audio.play().catch((error) => {
       console.error('[audio] play bị chặn:', error)
       cleanup()
@@ -184,13 +222,16 @@ export async function speak(
 /** Barge-in: người dùng chạm orb để ngắt lời RM */
 export function stopSpeaking(): void {
   playToken++
-  if (currentAudio) {
-    currentAudio.pause()
-    currentAudio.currentTime = 0
+  if (sharedAudio) {
+    sharedAudio.pause()
+    // Không gán src = '' hay gọi load(): trên iOS thao tác đó thu lại quyền
+    // phát của thẻ, lần sau muốn nói lại phải có user gesture mới
+    try {
+      sharedAudio.currentTime = 0
+    } catch {}
   }
   // pause() không bắn onended, phải tự giải phóng lời hứa và object URL
   currentCleanup?.()
-  currentAudio = null
 }
 
 export function fallbackUrlFor(intentId: string): string {
