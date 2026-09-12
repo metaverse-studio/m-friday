@@ -4,6 +4,7 @@ const MAX_CHUNK_LENGTH = 90
 
 let audioContext: AudioContext | null = null
 let currentAudio: HTMLAudioElement | null = null
+let currentCleanup: (() => void) | null = null
 let playToken = 0
 
 /**
@@ -89,12 +90,19 @@ function playBlob(blob: Blob, token: number): Promise<void> {
     const audio = new Audio(url)
     currentAudio = audio
 
+    let settled = false
     const cleanup = () => {
+      if (settled) return
+      settled = true
+      audio.onended = null
+      audio.onerror = null
       URL.revokeObjectURL(url)
       if (currentAudio === audio) currentAudio = null
+      if (currentCleanup === cleanup) currentCleanup = null
       resolve()
     }
 
+    currentCleanup = cleanup
     audio.onended = cleanup
     audio.onerror = cleanup
     void audio.play().catch((error) => {
@@ -162,8 +170,10 @@ export function stopSpeaking(): void {
   if (currentAudio) {
     currentAudio.pause()
     currentAudio.currentTime = 0
-    currentAudio = null
   }
+  // pause() không bắn onended, phải tự giải phóng lời hứa và object URL
+  currentCleanup?.()
+  currentAudio = null
 }
 
 export function fallbackUrlFor(intentId: string): string {

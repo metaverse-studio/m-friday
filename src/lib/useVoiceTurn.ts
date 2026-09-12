@@ -7,13 +7,6 @@ import { resolveIntent } from './intents/resolve'
 import type { IntentId } from './intents/types'
 import { useSession } from './session'
 
-const FIDO_LABELS: Partial<Record<IntentId, string>> = {
-  APPROVE_FIDO: 'Ký duyệt bảo lãnh KCN VSIP III · 5,2 tỷ VNĐ',
-  REJECT_ORDER: 'Trả lệnh 850 triệu VNĐ về Maker Trần Thị B',
-  SUGGEST_CCTG: 'Xác nhận mua Chứng chỉ tiền gửi 15,0 tỷ VNĐ',
-  FX_FORWARD: 'Đặt lệnh kỳ hạn USD/VND tại 26.310',
-}
-
 const DEMO_QUEUE: IntentId[] = [
   'CASH_FLOW',
   'SUGGEST_CCTG',
@@ -42,10 +35,17 @@ let demoQueueIndex = 0
 let activeTimers: Array<ReturnType<typeof setTimeout>> = []
 let activeRecorder: MediaRecorder | null = null
 let activeStream: MediaStream | null = null
+let pendingFidoResolve: (() => void) | null = null
 
 function clearTurnState() {
   activeTimers.forEach(clearTimeout)
   activeTimers = []
+  // Giải phóng lượt đang chờ FIDO, nếu không lời hứa sẽ treo vĩnh viễn
+  if (pendingFidoResolve) {
+    const resolve = pendingFidoResolve
+    pendingFidoResolve = null
+    resolve()
+  }
   if (activeRecorder) {
     activeRecorder.onstop = null
     if (activeRecorder.state === 'recording') {
@@ -86,10 +86,14 @@ export function useVoiceTurn() {
       const { runIntent: markIntent, setSpeaking, recordLatency, setCurrentLine } = store.getState()
       const intent = getIntent(id)
 
-      if (intent.requiresFido && id !== 'SUGGEST_CCTG' && id !== 'FX_FORWARD') {
-        const label = FIDO_LABELS[id] || `Xác thực để ${intent.label.toLowerCase()}`
+      if (intent.requiresFido && !intent.fidoInWidget) {
+        const label = intent.fidoLabel || `Xác thực để ${intent.label.toLowerCase()}`
         await new Promise<void>((resolve) => {
-          store.getState().requestFido(label, resolve)
+          pendingFidoResolve = resolve
+          store.getState().requestFido(label, () => {
+            pendingFidoResolve = null
+            resolve()
+          })
         })
       }
 
@@ -135,13 +139,17 @@ export function useVoiceTurn() {
   )
 
   const stopListening = useCallback(() => {
-    if (activeRecorder && activeRecorder.state === 'recording') {
-      try {
-        activeRecorder.requestData?.()
-      } catch {}
-      try {
-        activeRecorder.stop()
-      } catch {}
+    // Có recorder tức là đang ghi âm thật. Chạm thêm lần nữa trong lúc chờ
+    // onstop không được rơi xuống nhánh giả lập và bắn thêm một intent.
+    if (activeRecorder) {
+      if (activeRecorder.state === 'recording') {
+        try {
+          activeRecorder.requestData?.()
+        } catch {}
+        try {
+          activeRecorder.stop()
+        } catch {}
+      }
       return
     }
     // Chạm khi đang giả lập -> kích hoạt ngay kịch bản kế tiếp không cần chờ hết timer

@@ -51,6 +51,15 @@ async function main() {
     failures.forEach((line) => console.log(`  ${line}`))
   }
 
+  // Khi server chết, mọi câu tầng 3 đều rơi về UNKNOWN và trùng khớp với các
+  // câu ngoài phạm vi — con số đẹp đó là giả, phải báo hỏng thay vì báo đạt.
+  if (serverReachable === false) {
+    console.error(
+      `\nKhông đo được tầng 3: ${BASE_URL} không phản hồi. Hãy chạy "bun dev" rồi đo lại.`,
+    )
+    process.exit(1)
+  }
+
   process.exit(accuracy >= 95 ? 0 : 1)
 }
 

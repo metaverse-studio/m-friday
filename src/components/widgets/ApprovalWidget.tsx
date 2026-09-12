@@ -1,7 +1,7 @@
 'use client'
 
 import { fixtures } from '@/lib/data/fixtures'
-import { formatTrieuRaw, formatTyRaw } from '@/lib/data/format'
+import { formatTrieuRaw, formatTyRaw, formatTyRawFixed1 } from '@/lib/data/format'
 import type { IntentId } from '@/lib/intents/types'
 import { useSession } from '@/lib/session'
 
@@ -10,8 +10,11 @@ export function ApprovalWidget({ intent }: { intent?: IntentId } = {}) {
   const activeIntent = intent ?? sessionIntent
   const isReject = activeIntent === 'REJECT_ORDER'
 
-  const { pendingGuarantee } = fixtures.tradeFinance
+  const { pendingGuarantee, guarantee } = fixtures.tradeFinance
   const { amount, makerName } = fixtures.fraud
+  // Sau khi ký duyệt, hạn mức bảo lãnh khả dụng giảm đúng giá trị vừa duyệt
+  const guaranteeLeft = guarantee.available - pendingGuarantee.amount
+  const pendingLeft = fixtures.session.pendingInternational
 
   if (isReject) {
     return (
@@ -76,11 +79,15 @@ export function ApprovalWidget({ intent }: { intent?: IntentId } = {}) {
         </div>
         <div className="flex justify-between py-2 border-b border-white/12 font-medium text-[12.5px] text-white/60">
           <span>Hạn mức bảo lãnh còn lại</span>
-          <span className="font-bold text-white">6,3 / 30,0 tỷ</span>
+          <span className="font-bold text-white">
+            {formatTyRawFixed1(guaranteeLeft)} / {formatTyRawFixed1(guarantee.total)} tỷ
+          </span>
         </div>
         <div className="flex justify-between py-2 border-b border-white/12 font-medium text-[12.5px] text-white/60">
           <span>Hàng chờ duyệt</span>
-          <span className="font-bold text-white">02 lệnh</span>
+          <span className="font-bold text-white">
+            {String(pendingLeft).padStart(2, '0')} lệnh
+          </span>
         </div>
       </div>
     </div>

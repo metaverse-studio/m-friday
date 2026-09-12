@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { fixtures } from '@/lib/data/fixtures'
+import { formatTyRaw } from '@/lib/data/format'
 import { useVoiceTurn } from '@/lib/useVoiceTurn'
 import { useSession } from '@/lib/session'
 import { FidoModal } from './fido/FidoModal'
@@ -69,13 +71,16 @@ export function Dashboard() {
                 SỐ DƯ KHẢ DỤNG · VND
               </p>
               <p className="font-bold text-[28px] sm:text-[30px] md:text-[34px] leading-none tracking-[-0.03em] text-white mt-1 sm:mt-1.5 m-0">
-                27,5<span className="font-semibold text-[14px] sm:text-[15px] tracking-normal text-white/55"> TỶ</span>
+                {formatTyRaw(fixtures.balance.availableVnd)}
+                <span className="font-semibold text-[14px] sm:text-[15px] tracking-normal text-white/55"> TỶ</span>
               </p>
             </div>
             <div className="text-right pb-0.5">
-              <p className="font-bold text-[14px] sm:text-[15px] md:text-[16px] leading-none text-signal m-0">+18,2</p>
+              <p className="font-bold text-[14px] sm:text-[15px] md:text-[16px] leading-none text-signal m-0">
+                +{formatTyRaw(fixtures.cashFlow.net)}
+              </p>
               <p className="font-normal text-[9px] sm:text-[9.5px] leading-tight text-white/40 mt-0.5 sm:mt-1 m-0 uppercase">
-                RÒNG 7 NGÀY
+                RÒNG {fixtures.cashFlow.days} NGÀY
               </p>
             </div>
           </div>

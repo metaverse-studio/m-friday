@@ -1,4 +1,4 @@
-import { formatTy } from '@/lib/data/format'
+import { formatAmountVnd } from '@/lib/data/format'
 import { transactions } from '@/lib/data/txns'
 
 export function TxnHistoryWidget() {
@@ -29,7 +29,7 @@ export function TxnHistoryWidget() {
               }`}
             >
               {txn.direction === 'in' ? '+' : '−'}
-              {formatTy(txn.amount)}
+              {formatAmountVnd(txn.amount)}
             </span>
           </div>
         ))}

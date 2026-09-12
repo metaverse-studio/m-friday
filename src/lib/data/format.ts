@@ -40,3 +40,8 @@ export function formatTrieuRaw(amount: number): string {
 export function formatPercent(value: number): string {
   return `${viDecimal(value)}%`
 }
+
+/** Chọn đơn vị theo độ lớn: dưới 1 tỷ đọc bằng triệu thay vì "0,6 tỷ" */
+export function formatAmountVnd(amount: number): string {
+  return Math.abs(amount) >= TY ? formatTy(amount) : formatTrieu(amount)
+}

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { cctgYield, idleCash, obligationTotal } from '@/lib/data/calc'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTrieuRaw, formatTy, formatTyRaw, formatTyRawFixed1 } from '@/lib/data/format'
+import { getIntent } from '@/lib/intents/registry'
 import { useSession } from '@/lib/session'
 
 export function CctgWidget() {
@@ -12,7 +13,7 @@ export function CctgWidget() {
   const [purchased, setPurchased] = useState(false)
 
   const handleApprove = () => {
-    requestFido('Xác nhận mua Chứng chỉ tiền gửi 15,0 tỷ VNĐ', () => {
+    requestFido(getIntent('SUGGEST_CCTG').fidoLabel ?? '', () => {
       setPurchased(true)
     })
   }

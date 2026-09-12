@@ -1,4 +1,4 @@
-import { formatTrieu, formatTy } from '../data/format'
+import { formatTrieu, formatTy, formatTyFixed1 } from '../data/format'
 import { cctgYield, obligationTotal } from '../data/calc'
 import { fixtures } from '../data/fixtures'
 import type { Intent, IntentId } from './types'
@@ -80,10 +80,10 @@ export const INTENTS: Record<IntentId, Intent> = {
     group: 'analysis',
     keywords: [/lich su giao dich/, /bien dong so du/, /sao ke/],
     description: 'Xem lịch sử biến động số dư các tài khoản thanh toán.',
-    fixtureKey: 'session',
+    fixtureKey: 'txns',
     fallbackLine:
       'Dạ em đưa lên bảng kê biến động số dư các tài khoản thanh toán VNĐ và USD trong ngày để anh xem ạ.',
-    allowedNumbers: [],
+    allowedNumbers: [f.txns.date, String(f.txns.count), f.txns.totalInTy, f.txns.totalOutTy],
     nextChips: ['CASH_FLOW', 'RECENT_ACTIONS', 'PERIOD_COMPARE'],
   },
 
@@ -141,6 +141,9 @@ export const INTENTS: Record<IntentId, Intent> = {
     allowedNumbers: ['5,2'],
     nextChips: ['RECENT_ACTIONS', 'FRAUD_ALERT', 'SESSION_SUMMARY'],
     requiresFido: true,
+    fidoLabel: `Ký duyệt bảo lãnh ${f.tradeFinance.pendingGuarantee.project} · ${formatTy(
+      f.tradeFinance.pendingGuarantee.amount,
+    )} VNĐ`,
   },
 
   REJECT_ORDER: {
@@ -152,9 +155,11 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'fraud',
     fallbackLine:
       'Em đã trả lệnh về cho Maker kèm ghi chú của anh. Kế toán sẽ nhận được thông báo ngay ạ.',
-    allowedNumbers: [],
+    // Lát fixture là `fraud`, nên phải cho phép đúng các số của lệnh bị trả về
+    allowedNumbers: ['850', '23:47', '11/09'],
     nextChips: ['RECENT_ACTIONS', 'FRAUD_ALERT', 'SESSION_SUMMARY'],
     requiresFido: true,
+    fidoLabel: `Trả lệnh ${formatTrieu(f.fraud.amount)} VNĐ về Maker ${f.fraud.makerName}`,
   },
 
   SUGGEST_CCTG: {
@@ -173,6 +178,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     allowedNumbers: ['27,5', '10,1', '17,4', '15', '15,0', '5,4', '33,3', '2,4'],
     nextChips: ['OBLIGATION_CALENDAR', 'LOAN_BALANCE', 'CASH_FLOW'],
     requiresFido: true,
+    fidoInWidget: true,
+    fidoLabel: `Xác nhận mua Chứng chỉ tiền gửi ${formatTyFixed1(f.cctg.principal)} VNĐ`,
   },
 
   FX_FORWARD: {
@@ -188,6 +195,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     allowedNumbers: ['26.180', '26.310', '1,5', '250.000', '250', '25/09', '98,2', '32,5', '65,7'],
     nextChips: ['TRADE_FINANCE', 'CASH_FLOW', 'OBLIGATION_CALENDAR'],
     requiresFido: true,
+    fidoInWidget: true,
+    fidoLabel: `Đặt lệnh kỳ hạn USD/VND tại ${f.fx.forwardRate.toLocaleString('vi-VN')}`,
   },
 
   LOAN_BALANCE: {
@@ -226,7 +235,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'session',
     fallbackLine:
       'Em đã tổng hợp phiên làm việc và gửi báo cáo vào email của anh. Chúc anh một ngày làm việc hiệu quả ạ.',
-    allowedNumbers: [],
+    // Lát fixture là `session`, dùng chung allowlist với RECENT_ACTIONS
+    allowedNumbers: ['12', '12/12', '48,5', '02', '2', '01', '1'],
     nextChips: ['CASH_FLOW', 'RECENT_ACTIONS', 'CALL_HOTLINE'],
   },
 
@@ -240,7 +250,8 @@ export const INTENTS: Record<IntentId, Intent> = {
     fixtureKey: 'contacts',
     fallbackLine:
       'Dạ câu này nằm ngoài phạm vi em hỗ trợ trực tiếp. Để đảm bảo chính xác cho anh, em xin phép chuyển sang anh Nguyễn Văn A, Giám đốc Quan hệ Khách hàng phụ trách tài khoản của mình ạ.',
-    allowedNumbers: [],
+    // Lát fixture là `contacts`, cho phép số điện thoại RM và hotline
+    allowedNumbers: ['0988.123.456', '1800', '59', '9999'],
     nextChips: ['CALL_HOTLINE', 'CASH_FLOW', 'RECENT_ACTIONS'],
   },
 }

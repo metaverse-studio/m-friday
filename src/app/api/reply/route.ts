@@ -60,14 +60,17 @@ export async function POST(request: Request) {
   const intent = getIntent(targetIntentId)
 
   try {
+    // Chuỗi rỗng lọt qua numeric guard vì không chứa số nào, phải loại riêng
+    const isUsable = (text: string) => text.length > 0 && isSafeReply(text, targetIntentId)
+
     let reply = await generateOnce(targetIntentId)
 
     // Numeric guard: sinh lại đúng một lần, sau đó dùng câu mẫu
-    if (!isSafeReply(reply, targetIntentId)) {
+    if (!isUsable(reply)) {
       reply = await generateOnce(targetIntentId)
     }
-    if (!isSafeReply(reply, targetIntentId)) {
-      reply = intent.fallbackLine
+    if (!isUsable(reply)) {
+      return NextResponse.json({ reply: intent.fallbackLine, source: 'fallback' })
     }
 
     return NextResponse.json({ reply, source: 'llm' })

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { fxFloatRisk, fxForwardCost, fxSaving } from '@/lib/data/calc'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTrieu, formatTrieuRaw } from '@/lib/data/format'
+import { getIntent } from '@/lib/intents/registry'
 import { useSession } from '@/lib/session'
 
 export function FxForwardWidget() {
@@ -13,7 +14,7 @@ export function FxForwardWidget() {
   const [placed, setPlaced] = useState(false)
 
   const handleApprove = () => {
-    requestFido('Đặt lệnh kỳ hạn USD/VND tại 26.310', () => {
+    requestFido(getIntent('FX_FORWARD').fidoLabel ?? '', () => {
       setPlaced(true)
     })
   }

@@ -6,6 +6,7 @@ import { formatTyRaw } from '@/lib/data/format'
 export function RecentActionsWidget() {
   const { postedCount, postedTotal, postedValue, pendingInternational, pendingGuarantee } =
     fixtures.session
+  const { pendingLc, pendingGuarantee: guaranteeOrder } = fixtures.tradeFinance
 
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">
@@ -37,7 +38,7 @@ export function RecentActionsWidget() {
           <span className="flex-1 font-medium text-[13px] leading-[1.35] text-white/85">
             Lệnh thanh toán quốc tế
             <span className="block font-normal text-[11px] leading-[1.4] text-white/40 mt-0.5">
-              Siemens AG · 250.000 USD
+              {pendingLc.partner} · {pendingLc.amountUsd.toLocaleString('vi-VN')} USD
             </span>
           </span>
         </div>
@@ -49,7 +50,7 @@ export function RecentActionsWidget() {
           <span className="flex-1 font-medium text-[13px] leading-[1.35] text-white/85">
             Đề nghị phát hành bảo lãnh
             <span className="block font-normal text-[11px] leading-[1.4] text-white/40 mt-0.5">
-              KCN VSIP III · 5,2 tỷ VNĐ
+              {guaranteeOrder.project} · {formatTyRaw(guaranteeOrder.amount)} tỷ VNĐ
             </span>
           </span>
         </div>

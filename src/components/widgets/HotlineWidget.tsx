@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from 'react'
 import { fixtures } from '@/lib/data/fixtures'
+import { useSession } from '@/lib/session'
 
 export function HotlineWidget() {
   const { rmName, rmPhone, hotline } = fixtures.contacts
+  const isSpeaking = useSession((s) => s.isSpeaking)
   const ringRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
@@ -12,13 +14,23 @@ export function HotlineWidget() {
     audio.loop = true
     audio.volume = 0.35
     ringRef.current = audio
-    void audio.play().catch((error: any) => console.error('[hotline] chuông bị chặn:', error))
 
     return () => {
       audio.pause()
       ringRef.current = null
     }
   }, [])
+
+  // Chuông chỉ đổ khi Friday đã nói xong, tránh hai luồng âm thanh chồng lên nhau
+  useEffect(() => {
+    const audio = ringRef.current
+    if (!audio) return
+    if (isSpeaking) {
+      audio.pause()
+      return
+    }
+    void audio.play().catch((error) => console.error('[hotline] chuông bị chặn:', error))
+  }, [isSpeaking])
 
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">

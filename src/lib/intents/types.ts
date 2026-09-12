@@ -46,4 +46,11 @@ export type Intent = {
   nextChips: IntentId[]
   /** Cần xác thực sinh trắc học trước khi đổi trạng thái */
   requiresFido?: boolean
+  /** Dòng mô tả hiển thị trên màn hình xác thực FIDO */
+  fidoLabel?: string
+  /**
+   * FIDO được kích hoạt bằng nút bấm bên trong widget (người dùng phải
+   * đọc số liệu trước khi ký), không chặn ngay đầu lượt thoại.
+   */
+  fidoInWidget?: boolean
 }

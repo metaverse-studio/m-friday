@@ -1,3 +1,11 @@
+import { formatTyRaw } from './format'
+import { transactions } from './txns'
+
+const sumByDirection = (direction: 'in' | 'out'): number =>
+  transactions
+    .filter((txn) => txn.direction === direction)
+    .reduce((total, txn) => total + txn.amount, 0)
+
 export const fixtures = {
   company: {
     name: 'Stark Industry',
@@ -23,6 +31,17 @@ export const fixtures = {
       { label: 'T7', inflow: 9_100_000_000, outflow: 6_300_000_000 },
       { label: 'CN', inflow: 5_500_000_000, outflow: 4_200_000_000 },
     ],
+  },
+
+  /**
+   * Lát dữ liệu cho TXN_HISTORY. Số liệu đã quy về đơn vị tỷ dạng chuỗi
+   * để LLM chép nguyên văn, khớp đúng allowedNumbers của intent.
+   */
+  txns: {
+    date: '12/09',
+    count: transactions.length,
+    totalInTy: formatTyRaw(sumByDirection('in')),
+    totalOutTy: formatTyRaw(sumByDirection('out')),
   },
 
   session: {
