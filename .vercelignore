@@ -1,0 +1,6 @@
+.tmp
+.gemini
+docs/specs/
+tests/
+*.log
+.DS_Store

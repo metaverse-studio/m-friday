@@ -1,0 +1,42 @@
+export const transactions = [
+  {
+    id: 'TXN-0912-01',
+    time: '09:14',
+    account: 'VND · 0210 4567 8901',
+    description: 'Thu tiền hàng Công ty Phân phối Minh Long',
+    amount: 4_200_000_000,
+    direction: 'in' as const,
+  },
+  {
+    id: 'TXN-0912-02',
+    time: '10:02',
+    account: 'VND · 0210 4567 8901',
+    description: 'Thanh toán nhà cung cấp Linh kiện Đại Việt',
+    amount: 1_850_000_000,
+    direction: 'out' as const,
+  },
+  {
+    id: 'TXN-0912-03',
+    time: '10:47',
+    account: 'USD · 0210 9988 7766',
+    description: 'Ký quỹ mở L/C nhập khẩu Siemens AG',
+    amount: 1_309_000_000,
+    direction: 'out' as const,
+  },
+  {
+    id: 'TXN-0912-04',
+    time: '11:20',
+    account: 'VND · 0210 4567 8901',
+    description: 'Thu công nợ đại lý khu vực miền Trung',
+    amount: 2_650_000_000,
+    direction: 'in' as const,
+  },
+  {
+    id: 'TXN-0912-05',
+    time: '13:35',
+    account: 'VND · 0210 4567 8901',
+    description: 'Nộp bảo hiểm xã hội tháng 9',
+    amount: 640_000_000,
+    direction: 'out' as const,
+  },
+]
