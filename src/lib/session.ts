@@ -39,7 +39,7 @@ const DEFAULT_LINE =
   'Chào buổi sáng Mr Stark. Chúc anh một ngày làm việc hiệu quả tại MSB Business. Em là Friday — Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh.'
 
 export const useSession = create<SessionState>((set) => ({
-  phase: 'locked',
+  phase: 'dashboard',
   activeIntent: null,
   chips: INITIAL_CHIPS,
   history: [],

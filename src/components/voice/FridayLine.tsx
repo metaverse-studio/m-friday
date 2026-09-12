@@ -22,7 +22,7 @@ export function FridayLine() {
         </span>
       )}
       {isThinking && (
-        <span className="ml-auto font-bold text-[8.5px] leading-none tracking-[0.16em] text-msb-gold/70 uppercase animate-pulse">
+        <span className="ml-auto font-bold text-caption tracking-[0.16em] text-msb-gold/70 uppercase animate-pulse">
           ĐANG SOẠN
         </span>
       )}

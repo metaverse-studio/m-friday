@@ -35,31 +35,31 @@ export function LockScreen() {
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-[10px] h-[10px] bg-msb-orange rounded-[2px]" />
-                <span className="font-bold text-[16px] sm:text-[17px] leading-none tracking-[0.02em] text-white">
+                <span className="font-bold text-body tracking-[0.02em] text-white">
                   MSB
                 </span>
-                <span className="font-semibold text-[16px] sm:text-[17px] leading-none tracking-[0.02em] text-white/50">
+                <span className="font-semibold text-body tracking-[0.02em] text-white/50">
                   BUSINESS
                 </span>
               </div>
-              <p className="mt-1.5 font-bold text-[9px] leading-none tracking-[0.22em] text-msb-gold">
+              <p className="mt-1.5 font-bold text-caption tracking-[0.22em] text-msb-gold">
                 CORPORATE · PRIORITY
               </p>
             </div>
-            <p className="font-normal text-[9.5px] leading-[1.35] text-right text-white/40">
+            <p className="font-normal text-caption text-right text-white/40">
               PHIÊN<br />TRÌNH DIỄN
             </p>
           </div>
 
           {/* Account information */}
           <div className="pt-4 sm:pt-6">
-            <p className="font-semibold text-[9px] sm:text-[9.5px] leading-none tracking-[0.16em] uppercase text-white/40">
+            <p className="font-semibold text-caption tracking-[0.16em] uppercase text-white/40">
               Tài khoản doanh nghiệp
             </p>
-            <h2 className="mt-2 font-bold text-[20px] sm:text-[24px] leading-[1.15] tracking-[-0.02em] text-white">
+            <h2 className="mt-2 font-bold text-title sm:text-h3 tracking-[-0.02em] text-white">
               Stark Industry
             </h2>
-            <p className="mt-2 font-normal text-[11.5px] sm:text-[12.5px] leading-[1.4] text-white/50">
+            <p className="mt-2 font-normal text-caption text-white/50">
               VND · 0210 4567 8901 · USD · 0210 9988 7766
             </p>
           </div>
@@ -104,7 +104,7 @@ export function LockScreen() {
 
         {/* Action Button & Hints */}
         <div>
-          <p className="mb-3 sm:mb-4 font-normal text-[11.5px] sm:text-[12.5px] leading-[1.4] text-white/60 min-h-[32px] sm:min-h-[36px] text-center">
+          <p className="mb-3 sm:mb-4 font-normal text-caption text-white/60 min-h-[32px] sm:min-h-[36px] text-center">
             {lockHint}
           </p>
 
@@ -112,13 +112,13 @@ export function LockScreen() {
             type="button"
             onClick={handleAuthenticate}
             disabled={scanning}
-            className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer disabled:opacity-80 font-bold text-[12.5px] sm:text-[13px] leading-none tracking-[0.08em] uppercase transition-all"
+            className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer disabled:opacity-80 font-bold text-caption sm:text-small tracking-[0.08em] uppercase transition-all"
           >
             <span>XÁC THỰC FIDO BIOMETRIC</span>
-            <span className="font-bold text-[14px] sm:text-[15px] leading-none">→</span>
+            <span className="font-bold text-small">→</span>
           </button>
 
-          <p className="mt-2.5 sm:mt-3 font-normal text-[9.5px] sm:text-[10px] leading-[1.4] text-white/35 text-center">
+          <p className="mt-2.5 sm:mt-3 font-normal text-caption text-white/35 text-center">
             Chạm để mở khóa âm thanh, micro và WebAuthn trong cùng một user gesture — theo §6.1 của spec.
           </p>
         </div>

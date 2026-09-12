@@ -81,10 +81,10 @@ export function FidoModal() {
           </div>
 
           <div className="text-center px-6">
-            <p className="font-bold text-[15px] leading-[1.35] tracking-[-0.01em] text-white m-0">
+            <p className="font-bold text-small tracking-[-0.01em] text-white m-0">
               {prompt.label}
             </p>
-            <p className="mt-2.5 font-semibold text-[9.5px] leading-none tracking-[0.16em] text-white/50 uppercase">
+            <p className="mt-2.5 font-semibold text-caption tracking-[0.16em] text-white/50 uppercase">
               {done ? 'XÁC THỰC THÀNH CÔNG' : 'ĐANG XÁC THỰC SINH TRẮC HỌC…'}
             </p>
           </div>

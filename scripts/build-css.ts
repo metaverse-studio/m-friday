@@ -25,6 +25,20 @@ async function buildCss() {
 
 @theme {
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* Thang chữ MSB Business, đọc từ Figma "[MB] Chuyển tiền đơn - [CTB EB]".
+     Tên tier khớp tên text style trong thiết kế. Cỡ chữ và line-height luôn
+     đi cặp, nên dùng text-<tier> là không cần leading-* kèm theo. */
+  --text-h3: 22px;
+  --text-h3--line-height: 32px;
+  --text-title: 18px;
+  --text-title--line-height: 24px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-small: 14px;
+  --text-small--line-height: 20px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
   --color-obsidian: #0D2745;
   --color-sapphire: #101520;
   --color-card: #131A27;
@@ -154,22 +168,6 @@ html, body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-
-/* --- Thang chữ MSB Business, đọc từ Figma "[MB] Chuyển tiền đơn - [CTB EB]" ---
-   Tên class khớp tên text style trong thiết kế: H3 / Title / Base / Small / Caption */
-.font-h3-bold { font-family: var(--font-inter), sans-serif; font-size: 22px; line-height: 32px; font-weight: 700; }
-.font-h3-semibold { font-family: var(--font-inter), sans-serif; font-size: 22px; line-height: 32px; font-weight: 600; }
-.font-title-bold { font-family: var(--font-inter), sans-serif; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.27px; }
-.font-title-semibold { font-family: var(--font-inter), sans-serif; font-size: 18px; line-height: 24px; font-weight: 600; }
-.font-title-medium { font-family: var(--font-inter), sans-serif; font-size: 18px; line-height: 24px; font-weight: 500; }
-.font-base-semibold { font-family: var(--font-inter), sans-serif; font-size: 16px; line-height: 24px; font-weight: 600; }
-.font-base-medium { font-family: var(--font-inter), sans-serif; font-size: 16px; line-height: 24px; font-weight: 500; }
-.font-base-regular { font-family: var(--font-inter), sans-serif; font-size: 16px; line-height: 24px; font-weight: 400; }
-.font-small-semibold { font-family: var(--font-inter), sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; }
-.font-small-medium { font-family: var(--font-inter), sans-serif; font-size: 14px; line-height: 20px; font-weight: 500; }
-.font-small-regular { font-family: var(--font-inter), sans-serif; font-size: 14px; line-height: 20px; font-weight: 400; }
-.font-caption-medium { font-family: var(--font-inter), sans-serif; font-size: 12px; line-height: 16px; font-weight: 500; }
-.font-caption-regular { font-family: var(--font-inter), sans-serif; font-size: 12px; line-height: 16px; font-weight: 400; }
 
 /* --- Design System Component Classes --- */
 .card-glass {

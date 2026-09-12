@@ -7,18 +7,18 @@ export function PeriodCompareWidget() {
 
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">
-      <p className="font-bold text-[9.5px] leading-none tracking-[0.16em] uppercase text-white/45 m-0">
+      <p className="font-bold text-caption tracking-[0.16em] uppercase text-white/45 m-0">
         {month} so với cùng kỳ
       </p>
 
-      <p className="mt-2.5 font-bold text-[28px] md:text-[30px] leading-none tracking-[-0.02em] text-signal m-0">
+      <p className="mt-2.5 font-bold text-h3 tracking-[-0.02em] text-signal m-0">
         +{formatPercent(periodGrowthInflow())}
-        <span className="font-bold text-[13px] text-white/45"> DÒNG THU</span>
+        <span className="font-bold text-small text-white/45"> DÒNG THU</span>
       </p>
 
       {/* Dòng thu */}
       <div className="mt-4 border-t border-white/12 pt-3.5">
-        <div className="flex justify-between font-medium text-[11px] leading-none text-white/60">
+        <div className="flex justify-between font-medium text-caption text-white/60">
           <span className="font-semibold">DÒNG THU</span>
           <span>
             {formatTy(inflowThis)} · trước {formatTy(inflowLast)}
@@ -33,7 +33,7 @@ export function PeriodCompareWidget() {
 
       {/* Dòng chi */}
       <div className="mt-4">
-        <div className="flex justify-between font-medium text-[11px] leading-none text-white/60">
+        <div className="flex justify-between font-medium text-caption text-white/60">
           <span className="font-semibold">DÒNG CHI</span>
           <span>
             {formatTy(outflowThis)} · trước {formatTy(outflowLast)}
@@ -50,14 +50,14 @@ export function PeriodCompareWidget() {
       </div>
 
       {/* Margin */}
-      <div className="flex justify-between mt-4 border-t border-white/12 pt-3 font-normal text-[12px] leading-[1.4] text-white/50">
+      <div className="flex justify-between mt-4 border-t border-white/12 pt-3 font-normal text-caption text-white/50">
         <span>Biên dòng tiền</span>
         <span className="font-bold text-msb-gold">
           {formatPercent(cashMargin('last'))} → {formatPercent(cashMargin('this'))}
         </span>
       </div>
 
-      <p className="mt-2.5 font-normal text-[10.5px] leading-[1.4] text-white/35 m-0">
+      <p className="mt-2.5 font-normal text-caption text-white/35 m-0">
         Thanh đậm là kỳ này, thanh mờ là cùng kỳ năm trước.
       </p>
     </div>

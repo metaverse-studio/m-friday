@@ -40,7 +40,7 @@ export function Orb({ onCancel, onStop }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <p className="font-bold text-[10px] leading-none tracking-[0.2em] text-msb-gold uppercase">
+          <p className="font-bold text-caption tracking-[0.2em] text-msb-gold uppercase">
             ĐANG THU ÂM · TIẾNG VIỆT
           </p>
 
@@ -74,11 +74,11 @@ export function Orb({ onCancel, onStop }: Props) {
             </div>
 
             {/* Transcript */}
-            <p className="font-bold text-[18px] md:text-[20px] leading-[1.35] tracking-[-0.01em] text-center text-white min-h-[52px] px-4 m-0">
+            <p className="font-bold text-title tracking-[-0.01em] text-center text-white min-h-[52px] px-4 m-0">
               {transcript || 'Đang nghe…'}
             </p>
 
-            <p className="mt-3 font-normal text-[11.5px] leading-[1.5] text-center text-white/50">
+            <p className="mt-3 font-normal text-caption text-center text-white/50">
               Chạm orb hoặc bấm nút bên dưới khi nói xong · tự động gửi sau 5 giây
             </p>
           </div>
@@ -87,14 +87,14 @@ export function Orb({ onCancel, onStop }: Props) {
             <button
               type="button"
               onClick={handleStop}
-              className="w-full p-3.5 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] font-bold text-[12.5px] leading-none tracking-[0.08em] uppercase text-white transition-all cursor-pointer text-center"
+              className="w-full p-3.5 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] font-bold text-caption tracking-[0.08em] uppercase text-white transition-all cursor-pointer text-center"
             >
               NÓI XONG · GỬI YÊU CẦU →
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="w-full p-2.5 rounded-[8px] bg-transparent text-white/50 hover:text-white/80 font-semibold text-[11px] leading-none tracking-[0.08em] uppercase transition-colors cursor-pointer text-center"
+              className="w-full p-2.5 rounded-[8px] bg-transparent text-white/50 hover:text-white/80 font-semibold text-caption tracking-[0.08em] uppercase transition-colors cursor-pointer text-center"
             >
               HỦY BỎ
             </button>

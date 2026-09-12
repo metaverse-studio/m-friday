@@ -10,17 +10,17 @@ export function CashFlowWidget() {
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">
       <div className="flex items-start justify-between">
-        <p className="font-bold text-[9.5px] leading-none tracking-[0.16em] uppercase text-white/45 m-0">
+        <p className="font-bold text-caption tracking-[0.16em] uppercase text-white/45 m-0">
           Dòng tiền {days} ngày
         </p>
-        <p className="font-normal text-[9.5px] leading-none text-white/35 m-0">
+        <p className="font-normal text-caption text-white/35 m-0">
           {asOfDate}
         </p>
       </div>
 
-      <p className="mt-2.5 font-bold text-[28px] md:text-[30px] leading-none tracking-[-0.02em] text-signal m-0">
+      <p className="mt-2.5 font-bold text-h3 tracking-[-0.02em] text-signal m-0">
         +{formatTyRaw(net)}
-        <span className="font-bold text-[14px] text-signal/70"> TỶ VNĐ</span>
+        <span className="font-bold text-small text-signal/70"> TỶ VNĐ</span>
       </p>
 
       {/* 7-day double bars chart */}
@@ -46,7 +46,7 @@ export function CashFlowWidget() {
         {daily.map((day) => (
           <span
             key={day.label}
-            className="flex-1 text-center font-medium text-[10px] leading-none text-white/40"
+            className="flex-1 text-center font-medium text-caption text-white/40"
           >
             {day.label}
           </span>
@@ -56,18 +56,18 @@ export function CashFlowWidget() {
       {/* Bottom stats */}
       <div className="grid grid-cols-2 mt-4 pt-3.5 border-t border-white/12">
         <div className="pr-3 border-r border-white/12">
-          <p className="font-bold text-[9px] leading-none tracking-[0.14em] text-white/40 m-0 uppercase">
+          <p className="font-bold text-caption tracking-[0.14em] text-white/40 m-0 uppercase">
             TỔNG THU
           </p>
-          <p className="mt-1.5 font-bold text-[18px] md:text-[19px] leading-none text-signal m-0">
+          <p className="mt-1.5 font-bold text-title text-signal m-0">
             {formatTyFixed1(inflow)}
           </p>
         </div>
         <div className="pl-3">
-          <p className="font-bold text-[9px] leading-none tracking-[0.14em] text-white/40 m-0 uppercase">
+          <p className="font-bold text-caption tracking-[0.14em] text-white/40 m-0 uppercase">
             TỔNG CHI
           </p>
-          <p className="mt-1.5 font-bold text-[18px] md:text-[19px] leading-none text-msb-orange m-0">
+          <p className="mt-1.5 font-bold text-title text-msb-orange m-0">
             {formatTyFixed1(outflow)}
           </p>
         </div>

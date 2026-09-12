@@ -101,28 +101,28 @@ export function InstallPromptModal() {
         {/* Brand header */}
         <div className="flex items-center gap-2.5 mb-3">
           <div className="w-3 h-3 bg-msb-orange rounded-[3px]" />
-          <span className="font-bold text-[15px] tracking-wide text-white">MSB</span>
-          <span className="font-bold text-[10px] tracking-[0.16em] text-msb-gold uppercase">
+          <span className="font-bold text-small tracking-wide text-white">MSB</span>
+          <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
             BUSINESS
           </span>
         </div>
 
         {/* Tiêu đề */}
-        <h3 className="text-[17px] sm:text-[18px] font-bold text-white tracking-tight m-0">
+        <h3 className="text-body sm:text-title font-bold text-white tracking-tight m-0">
           Cài đặt MSB Business
         </h3>
-        <p className="mt-2 text-[12.5px] sm:text-[13px] leading-[1.5] text-white/70 m-0">
+        <p className="mt-2 text-caption sm:text-small text-white/70 m-0">
           Thêm ứng dụng vào Màn hình chính để sử dụng chế độ <strong className="text-white font-semibold">Toàn màn hình (Full-Screen)</strong> không bị che khuất bởi thanh địa chỉ trình duyệt.
         </p>
 
         {/* Nội dung theo nền tảng */}
         {platform === 'ios' ? (
           <div className="mt-4 p-3.5 rounded-[12px] bg-card/90 border border-white/10 flex flex-col gap-2.5">
-            <p className="text-[11.5px] font-semibold uppercase tracking-wider text-msb-gold m-0">
+            <p className="text-caption font-semibold uppercase tracking-wider text-msb-gold m-0">
               Hướng dẫn cài đặt trên iOS (Safari):
             </p>
-            <div className="flex items-start gap-2.5 text-[12.5px] text-white/85">
-              <span className="w-5 h-5 rounded-full bg-msb-gold/20 text-msb-gold font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+            <div className="flex items-start gap-2.5 text-caption text-white/85">
+              <span className="w-5 h-5 rounded-full bg-msb-gold/20 text-msb-gold font-bold text-caption flex items-center justify-center shrink-0 mt-0.5">
                 1
               </span>
               <div className="flex-1">
@@ -130,8 +130,8 @@ export function InstallPromptModal() {
                 <Share className="w-3.5 h-3.5 inline-block mx-0.5 text-link" />) ở thanh công cụ dưới cùng Safari.
               </div>
             </div>
-            <div className="flex items-start gap-2.5 text-[12.5px] text-white/85">
-              <span className="w-5 h-5 rounded-full bg-msb-gold/20 text-msb-gold font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+            <div className="flex items-start gap-2.5 text-caption text-white/85">
+              <span className="w-5 h-5 rounded-full bg-msb-gold/20 text-msb-gold font-bold text-caption flex items-center justify-center shrink-0 mt-0.5">
                 2
               </span>
               <div className="flex-1">
@@ -147,7 +147,7 @@ export function InstallPromptModal() {
             <button
               type="button"
               onClick={handleInstallClick}
-              className="w-full flex items-center justify-center gap-2 p-3.5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer font-bold text-[12.5px] uppercase tracking-wider transition-all"
+              className="w-full flex items-center justify-center gap-2 p-3.5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer font-bold text-caption uppercase tracking-wider transition-all"
             >
               <Download className="w-4 h-4" />
               <span>Thêm vào màn hình chính</span>
@@ -160,7 +160,7 @@ export function InstallPromptModal() {
           <button
             type="button"
             onClick={handleDismiss}
-            className="text-[12px] text-white/45 hover:text-white/80 cursor-pointer font-medium transition-colors"
+            className="text-caption text-white/45 hover:text-white/80 cursor-pointer font-medium transition-colors"
           >
             Để sau
           </button>
