@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Share, PlusSquare, X, Download } from 'lucide-react'
 import { useSession } from '@/lib/session'
+import { useStandalone } from '@/lib/useStandalone'
 
 type Platform = 'ios' | 'android' | 'other'
 
@@ -10,6 +11,7 @@ export function InstallPromptModal() {
   // Trạng thái mở nằm ở store để nút "Cài lên màn hình chính" mở được từ ngoài
   const isOpen = useSession((s) => s.installPromptOpen)
   const setIsOpen = useSession((s) => s.setInstallPromptOpen)
+  const standalone = useStandalone()
   const [platform, setPlatform] = useState<Platform>('other')
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
 
@@ -79,7 +81,9 @@ export function InstallPromptModal() {
     setIsOpen(false)
   }
 
-  if (!isOpen) return null
+  // Đã mở từ màn hình chính thì không còn gì để gợi ý, kể cả khi có chỗ nào
+  // gọi mở hộp này — chặn ở đây là chặn được mọi đường
+  if (standalone || !isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-[#090E17]/75 backdrop-blur-sm animate-[riseIn_0.25s_ease-out]">

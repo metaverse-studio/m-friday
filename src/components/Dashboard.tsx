@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { buildTag } from '@/lib/build-info'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatTyRaw } from '@/lib/data/format'
 import { useVoiceTurn } from '@/lib/useVoiceTurn'
@@ -48,6 +49,9 @@ export function Dashboard() {
               </span>
               <span className="font-bold text-caption tracking-[0.18em] text-msb-gold">
                 BUSINESS
+              </span>
+              <span className="font-mono text-caption text-white/25 tabular-nums">
+                {buildTag()}
               </span>
             </div>
 

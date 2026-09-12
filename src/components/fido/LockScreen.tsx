@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Download } from 'lucide-react'
 import { unlockAudio } from '@/lib/audio/player'
+import { buildTag } from '@/lib/build-info'
+import { useStandalone } from '@/lib/useStandalone'
 import { authenticate, hasPlatformAuthenticator } from '@/lib/fido'
 import { useSession } from '@/lib/session'
 
 export function LockScreen() {
   const unlock = useSession((s) => s.unlock)
   const setInstallPromptOpen = useSession((s) => s.setInstallPromptOpen)
+  const standalone = useStandalone()
   const [scanning, setScanning] = useState(false)
   const [lockHint, setLockHint] = useState('Nhận diện tài khoản doanh nghiệp — sẵn sàng xác thực.')
   // Dò trước khi khách chạm: gọi trong handler là tiêu user gesture của Safari
@@ -67,7 +70,8 @@ export function LockScreen() {
               </p>
             </div>
             <p className="font-normal text-caption text-right text-white/40">
-              PHIÊN<br />TRÌNH DIỄN
+              PHIÊN TRÌNH DIỄN
+              <span className="block font-mono text-white/30 tabular-nums">{buildTag()}</span>
             </p>
           </div>
 
@@ -138,6 +142,7 @@ export function LockScreen() {
             <span className="font-bold text-small">→</span>
           </button>
 
+          {!standalone && (
           <button
             type="button"
             onClick={() => setInstallPromptOpen(true)}
@@ -146,6 +151,7 @@ export function LockScreen() {
             <Download className="w-3.5 h-3.5" />
             <span>Cài lên màn hình chính</span>
           </button>
+          )}
         </div>
       </div>
     </main>
