@@ -16,6 +16,8 @@ type SessionState = {
   /** Đã nhận lệnh nhưng chunk audio đầu tiên chưa kịp phát */
   isThinking: boolean
   drawerOpen: boolean
+  /** Hộp hướng dẫn cài lên màn hình chính, mở tự động hoặc do khách bấm nút */
+  installPromptOpen: boolean
   lastLatencyMs: number | null
   fidoPrompt: { label: string; onConfirm: () => void } | null
   currentLine: string
@@ -27,6 +29,7 @@ type SessionState = {
   setSpeaking: (value: boolean) => void
   setThinking: (value: boolean) => void
   toggleDrawer: (value: boolean) => void
+  setInstallPromptOpen: (value: boolean) => void
   recordLatency: (ms: number) => void
   setCurrentLine: (line: string) => void
   setTranscript: (text: string) => void
@@ -39,7 +42,7 @@ const DEFAULT_LINE =
   'Chào buổi sáng Mr Stark. Chúc anh một ngày làm việc hiệu quả tại MSB Business. Em là Friday — Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh.'
 
 export const useSession = create<SessionState>((set) => ({
-  phase: 'dashboard',
+  phase: 'locked',
   activeIntent: null,
   chips: INITIAL_CHIPS,
   history: [],
@@ -47,6 +50,7 @@ export const useSession = create<SessionState>((set) => ({
   isSpeaking: false,
   isThinking: false,
   drawerOpen: false,
+  installPromptOpen: false,
   lastLatencyMs: null,
   fidoPrompt: null,
   currentLine: DEFAULT_LINE,
@@ -69,6 +73,7 @@ export const useSession = create<SessionState>((set) => ({
   setSpeaking: (value) => set({ isSpeaking: value }),
   setThinking: (value) => set({ isThinking: value }),
   toggleDrawer: (value) => set({ drawerOpen: value }),
+  setInstallPromptOpen: (value) => set({ installPromptOpen: value }),
   recordLatency: (ms) => set({ lastLatencyMs: ms }),
   setCurrentLine: (line) => set({ currentLine: line }),
   setTranscript: (text) => set({ transcript: text }),

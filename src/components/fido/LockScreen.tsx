@@ -1,29 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Download } from 'lucide-react'
 import { unlockAudio } from '@/lib/audio/player'
-import { authenticate } from '@/lib/fido'
+import { authenticate, hasPlatformAuthenticator } from '@/lib/fido'
 import { useSession } from '@/lib/session'
 
 export function LockScreen() {
   const unlock = useSession((s) => s.unlock)
+  const setInstallPromptOpen = useSession((s) => s.setInstallPromptOpen)
   const [scanning, setScanning] = useState(false)
   const [lockHint, setLockHint] = useState('Nhận diện tài khoản doanh nghiệp — sẵn sàng xác thực.')
+  // Dò trước khi khách chạm: gọi trong handler là tiêu user gesture của Safari
+  const canBiometric = useRef<boolean | undefined>(undefined)
 
-  async function handleAuthenticate() {
-    // Cả hai lệnh dưới PHẢI nằm trong user gesture này.
-    // Tách ra chỗ khác là demo sẽ câm trên iOS.
+  useEffect(() => {
+    void hasPlatformAuthenticator().then((ok) => {
+      canBiometric.current = ok
+    })
+  }, [])
+
+  function handleAuthenticate() {
+    // Cả ba lệnh dưới PHẢI nằm trong user gesture này, và KHÔNG được có
+    // `await` nào chen vào trước chúng. Tách ra chỗ khác là demo sẽ câm trên
+    // iOS, còn WebAuthn thì ném NotAllowedError.
     unlockAudio()
     void navigator.mediaDevices?.getUserMedia({ audio: true }).catch(() => {})
+    const auth = authenticate(canBiometric.current)
 
     setScanning(true)
     setLockHint('Đang xác thực sinh trắc học…')
-    await Promise.all([
-      authenticate(),
-      new Promise((resolve) => setTimeout(resolve, 1500)),
-    ])
-    setScanning(false)
-    unlock()
+
+    void Promise.all([auth, new Promise((resolve) => setTimeout(resolve, 1500))]).then(() => {
+      setScanning(false)
+      unlock()
+    })
   }
 
   return (
@@ -118,9 +129,14 @@ export function LockScreen() {
             <span className="font-bold text-small">→</span>
           </button>
 
-          <p className="mt-2.5 sm:mt-3 font-normal text-caption text-white/35 text-center">
-            Chạm để mở khóa âm thanh, micro và WebAuthn trong cùng một user gesture — theo §6.1 của spec.
-          </p>
+          <button
+            type="button"
+            onClick={() => setInstallPromptOpen(true)}
+            className="mt-2.5 sm:mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-[12px] border border-white/15 bg-white/[0.04] text-white/70 cursor-pointer font-semibold text-caption tracking-[0.08em] uppercase transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Cài lên màn hình chính</span>
+          </button>
         </div>
       </div>
     </main>

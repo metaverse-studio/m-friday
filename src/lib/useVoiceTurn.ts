@@ -155,9 +155,13 @@ export function useVoiceTurn() {
     // onstop không được rơi xuống nhánh giả lập và bắn thêm một intent.
     if (activeRecorder) {
       if (activeRecorder.state === 'recording') {
-        try {
-          activeRecorder.requestData?.()
-        } catch {}
+        // Với MP4 của Safari, requestData cắt thêm fragment dở dang làm file
+        // không đọc được — stop() vốn đã tự trả nốt phần còn lại
+        if (!activeRecorder.mimeType?.includes('mp4')) {
+          try {
+            activeRecorder.requestData?.()
+          } catch {}
+        }
         try {
           activeRecorder.stop()
         } catch {}
@@ -287,12 +291,29 @@ export function useVoiceTurn() {
       await runIntent(intentId, startedAt)
     }
 
-    recorder.start(200)
+    /**
+     * Safari ghi ra MP4 phân đoạn. Khi có timeslice, mỗi lần ondataavailable
+     * chỉ trả một fragment: duy nhất fragment đầu có phần header khởi tạo,
+     * nên `new Blob(chunks)` cho ra file MP4 không hợp lệ và Whisper trả về
+     * chuỗi rỗng. WebM/Opus chịu được kiểu nối này, MP4 thì không — đó là lý
+     * do nhận diện giọng nói hỏng trên iPhone nhưng chạy tốt trên Android.
+     * Với MP4 phải ghi liền một mạch, lấy đúng một blob hoàn chỉnh lúc stop.
+     */
+    const isFragmentedMp4 = format.ext === 'mp4' || format.ext === 'm4a'
+    if (isFragmentedMp4) {
+      recorder.start()
+    } else {
+      recorder.start(200)
+    }
+
     const autoStop = setTimeout(() => {
       if (recorder.state === 'recording') {
-        try {
-          recorder.requestData?.()
-        } catch {}
+        // requestData cắt thêm một fragment dở dang, càng làm hỏng file MP4
+        if (!isFragmentedMp4) {
+          try {
+            recorder.requestData?.()
+          } catch {}
+        }
         recorder.stop()
       }
     }, 5_000)

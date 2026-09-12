@@ -2,67 +2,63 @@
 
 import { useEffect, useState } from 'react'
 import { Share, PlusSquare, X, Download } from 'lucide-react'
+import { useSession } from '@/lib/session'
 
 type Platform = 'ios' | 'android' | 'other'
 
 export function InstallPromptModal() {
-  const [isOpen, setIsOpen] = useState(false)
+  // Trạng thái mở nằm ở store để nút "Cài lên màn hình chính" mở được từ ngoài
+  const isOpen = useSession((s) => s.installPromptOpen)
+  const setIsOpen = useSession((s) => s.setInstallPromptOpen)
   const [platform, setPlatform] = useState<Platform>('other')
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // 1. Kiểm tra nếu đã đang chạy ở chế độ Standalone (đã thêm ra màn hình chính)
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      Boolean((navigator as any).standalone) ||
-      document.referrer.includes('android-app://')
-
-    if (isStandalone) return
-
-    // Hỗ trợ tham số debug/demo trên browser máy tính: ?prompt_install=1
-    const urlParams = new URLSearchParams(window.location.search)
-    const forceShow = urlParams.get('prompt_install') === '1'
-
-    // 2. Kiểm tra nếu người dùng đã từng đóng gợi ý
-    const isDismissed = localStorage.getItem('msb_pwa_dismissed') === 'true'
-    if (isDismissed && !forceShow) return
-
-    // 3. Nhận diện nền tảng
+    // Nhận diện nền tảng TRƯỚC mọi điều kiện chặn. Nút "Cài lên màn hình
+    // chính" mở được hộp này bất cứ lúc nào, nên `platform` phải luôn đúng —
+    // nếu để trong nhánh bị chặn thì khách iOS từng bấm "Để sau" sẽ thấy
+    // hướng dẫn của Android, mà nút Cài trên iOS thì không làm được gì.
     const ua = navigator.userAgent || ''
     const isIos = /iphone|ipad|ipod/i.test(ua) && !(window as any).MSStream
     const isAndroid = /android/i.test(ua)
+    if (isIos) setPlatform('ios')
+    else if (isAndroid) setPlatform('android')
 
-    if (isIos) {
-      setPlatform('ios')
-      // Đợi 2.5s sau khi mở trang để người dùng nắm giao diện rồi mới gợi ý
-      const timer = setTimeout(() => setIsOpen(true), 2500)
-      return () => clearTimeout(timer)
-    }
-
-    if (isAndroid || forceShow) {
-      setPlatform('android')
-    }
-
-    // 4. Lắng nghe sự kiện beforeinstallprompt của Chromium/Android
+    // beforeinstallprompt chỉ có ở Chromium. Safari không hỗ trợ, nên trên
+    // iOS vĩnh viễn không có cách cài tự động — chỉ hướng dẫn được thủ công.
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)
       setPlatform('android')
       setIsOpen(true)
     }
-
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    const cleanup = () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
-    if (forceShow && !isIos) {
-      setIsOpen(true)
+    // Đã chạy ở chế độ standalone thì không gợi ý nữa
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      Boolean((navigator as any).standalone) ||
+      document.referrer.includes('android-app://')
+    if (isStandalone) return cleanup
+
+    // Hỗ trợ tham số debug/demo trên browser máy tính: ?prompt_install=1
+    const forceShow = new URLSearchParams(window.location.search).get('prompt_install') === '1'
+    if (localStorage.getItem('msb_pwa_dismissed') === 'true' && !forceShow) return cleanup
+
+    if (isIos || forceShow) {
+      // Đợi 2.5s sau khi mở trang để người dùng nắm giao diện rồi mới gợi ý
+      const timer = setTimeout(() => setIsOpen(true), 2500)
+      return () => {
+        clearTimeout(timer)
+        cleanup()
+      }
     }
 
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    }
-  }, [])
+    return cleanup
+  }, [setIsOpen])
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
