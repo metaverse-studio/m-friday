@@ -1,4 +1,4 @@
-import type { TtsProvider } from './edge-tts'
+import type { TtsProvider, TtsResult } from './edge-tts'
 import { edgeTts } from './edge-tts'
 
 export const DEFAULT_VIENEU_VOICE = 'Ngọc Lan'
@@ -18,15 +18,30 @@ export function getRandomVieneuApiKey(): string {
   return keys[index] ?? ''
 }
 
+export function vieneuVoiceId(): string {
+  return `vieneu:${process.env.VIENEU_VOICE || DEFAULT_VIENEU_VOICE}`
+}
+
 /**
  * Provider tích hợp VieNeu TTS Cloud API (https://api.vieneu.io/api/v1/audio/speech)
  * Tương thích OpenAI audio/speech format, hỗ trợ các giọng tiếng Việt chất lượng cao (v4/v3).
- * Có fallback tự động sang edge-tts khi không có API key hoặc kết nối bị gián đoạn.
+ *
+ * Có fallback sang edge-tts, NHƯNG chỉ khi lượt thoại chưa chốt giọng. Fallback
+ * giữa lượt là nguyên nhân giọng bị đổi ngay trong một câu trả lời: mỗi mảnh
+ * câu là một request riêng, mảnh nào bị 429 hay timeout sẽ về giọng edge.
  */
 export const vieneuTts: TtsProvider = {
-  async synthesize(text: string): Promise<Buffer> {
+  async synthesize(text: string, lockedVoice?: string): Promise<TtsResult | null> {
+    const voiceId = vieneuVoiceId()
+
+    // Mảnh đầu đã ra giọng edge/say, các mảnh sau phải theo, không gọi VieNeu
+    if (lockedVoice && lockedVoice !== voiceId) {
+      return edgeTts.synthesize(text, lockedVoice)
+    }
+
     const apiKey = getRandomVieneuApiKey()
     if (!apiKey) {
+      if (lockedVoice) return null
       console.warn('[vieneu-tts] VIENEU_API_KEY chưa cấu hình, rơi về edge-tts')
       return edgeTts.synthesize(text)
     }
@@ -45,25 +60,30 @@ export const vieneuTts: TtsProvider = {
           voice,
           response_format: 'mp3',
         }),
-        signal: AbortSignal.timeout(4000),
+        // Mảnh sau được tải trong lúc mảnh đầu đang phát nên có dư thời gian;
+        // timeout ngắn chỉ làm tăng tỷ lệ rơi provider một cách vô ích.
+        signal: AbortSignal.timeout(10_000),
       })
 
       if (!response.ok) {
         const errText = await response.text().catch(() => '')
         console.error(`[vieneu-tts] API phản hồi lỗi ${response.status}: ${errText}`)
-        return edgeTts.synthesize(text)
+      } else {
+        const buffer = Buffer.from(await response.arrayBuffer())
+        if (buffer.length >= 500) {
+          return { audio: buffer, voice: voiceId }
+        }
+        console.warn('[vieneu-tts] buffer nhận về quá nhỏ (<500 bytes)')
       }
-
-      const arrayBuffer = await response.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-      if (buffer.length >= 500) {
-        return buffer
-      }
-      console.warn('[vieneu-tts] buffer nhận về quá nhỏ (<500 bytes), rơi về edge-tts')
     } catch (error) {
       console.error('[vieneu-tts] gọi API thất bại:', error)
     }
 
+    // Giọng đã chốt là VieNeu: bỏ mảnh này thay vì phát bằng giọng khác
+    if (lockedVoice) {
+      console.error('[vieneu-tts] bỏ mảnh để giữ nhất quán giọng', lockedVoice)
+      return null
+    }
     return edgeTts.synthesize(text)
   },
 }

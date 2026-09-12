@@ -1,4 +1,4 @@
-import { getCached, putCached } from './cache'
+import { getCached, putCached, type CachedAudio } from './cache'
 
 const MAX_CHUNK_LENGTH = 90
 
@@ -59,23 +59,26 @@ export function splitSentences(text: string): string[] {
   return result
 }
 
-async function fetchAudio(text: string): Promise<Blob | null> {
+async function fetchAudio(text: string, lockedVoice?: string): Promise<CachedAudio | null> {
   const cached = await getCached(text)
-  if (cached) return cached
+  // Mảnh trong cache nhưng sai giọng của lượt này thì phải tổng hợp lại
+  if (cached && (!lockedVoice || cached.voice === lockedVoice)) return cached
 
   try {
     const response = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, voice: lockedVoice }),
     })
     if (!response.ok || response.status === 204) return null
 
+    const voice = decodeURIComponent(response.headers.get('X-Tts-Voice') || '')
     const blob = await response.blob()
-    if (blob.size < 500) return null
+    if (blob.size < 500 || !voice) return null
+    if (lockedVoice && voice !== lockedVoice) return null
 
-    void putCached(text, blob)
-    return blob
+    void putCached(text, blob, voice)
+    return { blob, voice }
   } catch (error) {
     console.error('[audio] tải tts thất bại:', error)
     return null
@@ -113,8 +116,10 @@ function playBlob(blob: Blob, token: number): Promise<void> {
 }
 
 /**
- * Phát lời thoại theo mảnh. Mảnh đầu được tải và phát ngay,
- * các mảnh sau tải nền song song rồi phát nối tiếp.
+ * Phát lời thoại theo mảnh. Mảnh nói được đầu tiên chốt giọng cho cả lượt,
+ * rồi các mảnh sau mới tải nền song song trong lúc mảnh đầu đang phát.
+ * Mảnh nào không ra đúng giọng đã chốt thì bị bỏ — thà thiếu một vế còn hơn
+ * phát một câu trả lời bằng hai giọng khác nhau.
  * onFirstAudio bắn đúng một lần, dùng để đo time-to-first-audio.
  */
 export async function speak(
@@ -128,19 +133,31 @@ export async function speak(
   const chunks = splitSentences(text)
   if (chunks.length === 0) return
 
-  const pending = chunks.map((chunk) => fetchAudio(chunk))
   let announced = false
+  let lockedVoice: string | undefined
+  const pending: (Promise<CachedAudio | null> | undefined)[] = []
 
-  for (const promise of pending) {
+  for (let i = 0; i < chunks.length; i++) {
     if (token !== playToken) return
-    const blob = await promise
-    if (!blob) continue
+
+    const audio = await (pending[i] ?? fetchAudio(chunks[i]!, lockedVoice))
+    if (!audio) continue
+
+    if (!lockedVoice) {
+      // Mảnh nói được đầu tiên chốt giọng cho cả lượt. Chỉ sau khi chốt mới
+      // bắn phần còn lại một lượt — trước đây bắn hết ngay từ đầu nên API
+      // nhận cả chùm request, những mảnh sau bị rate-limit rồi rơi giọng.
+      lockedVoice = audio.voice
+      for (let j = i + 1; j < chunks.length; j++) {
+        pending[j] = fetchAudio(chunks[j]!, lockedVoice)
+      }
+    }
 
     if (!announced) {
       announced = true
       onFirstAudio?.()
     }
-    await playBlob(blob, token)
+    await playBlob(audio.blob, token)
   }
 
   // Không mảnh nào tổng hợp được — dùng MP3 dựng sẵn

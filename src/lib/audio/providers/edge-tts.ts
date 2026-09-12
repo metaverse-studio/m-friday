@@ -3,11 +3,26 @@ import { promises as fs } from 'node:fs'
 import { join } from 'node:path'
 import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts'
 
+/**
+ * `voice` là mã định danh giọng THẬT đã tạo ra buffer này, không phải giọng
+ * được yêu cầu. Một lượt thoại bị cắt thành nhiều mảnh và tổng hợp riêng,
+ * nên client phải biết mảnh nào ra giọng nào để không phát lẫn hai giọng
+ * trong cùng một câu trả lời.
+ */
+export type TtsResult = { audio: Buffer; voice: string }
+
 export type TtsProvider = {
-  synthesize(text: string): Promise<Buffer>
+  /**
+   * `lockedVoice` khóa giọng theo mảnh đầu của lượt. Khi không tổng hợp được
+   * đúng giọng đó, trả `null` để client bỏ mảnh — thà thiếu một vế còn hơn
+   * đổi giọng giữa câu.
+   */
+  synthesize(text: string, lockedVoice?: string): Promise<TtsResult | null>
 }
 
 export const VOICE_NAME = 'vi-VN-HoaiMyNeural'
+export const EDGE_VOICE_ID = `edge:${VOICE_NAME}`
+export const MAC_VOICE_ID = 'say:Linh'
 
 const TMP_DIR = join(process.cwd(), '.tmp')
 
@@ -68,29 +83,39 @@ async function synthesizeNativeMac(text: string): Promise<Buffer> {
  * theo đúng đặc tả §4.1 để bảo đảm âm thanh thực tế phát được.
  */
 export const edgeTts: TtsProvider = {
-  async synthesize(text: string): Promise<Buffer> {
-    try {
-      const tts = new MsEdgeTTS()
-      await tts.setMetadata(VOICE_NAME, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
-
-      const { audioStream } = tts.toStream(text)
-      const chunks: Buffer[] = []
-
-      const result = await new Promise<Buffer>((resolve, reject) => {
-        audioStream.on('data', (chunk: Buffer) => chunks.push(chunk))
-        audioStream.on('end', () => resolve(Buffer.concat(chunks)))
-        audioStream.on('error', reject)
-      })
-
-      // Buffer thực tế của một câu nói tiếng Việt thường > 1000 bytes.
-      // Nếu dưới 500 bytes tức là stub giả lập hoặc stream rỗng, kích hoạt fallback.
-      if (result.length >= 500) {
-        return result
-      }
-    } catch {
-      // MsEdgeTTS ném lỗi, tiếp tục xuống tầng dưới
+  async synthesize(text: string, lockedVoice?: string): Promise<TtsResult | null> {
+    // Lượt này đã chốt một giọng không thuộc provider nào ở đây
+    if (lockedVoice && lockedVoice !== EDGE_VOICE_ID && lockedVoice !== MAC_VOICE_ID) {
+      return null
     }
 
-    return await synthesizeNativeMac(text)
+    if (lockedVoice !== MAC_VOICE_ID) {
+      try {
+        const tts = new MsEdgeTTS()
+        await tts.setMetadata(VOICE_NAME, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
+
+        const { audioStream } = tts.toStream(text)
+        const chunks: Buffer[] = []
+
+        const result = await new Promise<Buffer>((resolve, reject) => {
+          audioStream.on('data', (chunk: Buffer) => chunks.push(chunk))
+          audioStream.on('end', () => resolve(Buffer.concat(chunks)))
+          audioStream.on('error', reject)
+        })
+
+        // Buffer thực tế của một câu nói tiếng Việt thường > 1000 bytes.
+        // Nếu dưới 500 bytes tức là stub giả lập hoặc stream rỗng, kích hoạt fallback.
+        if (result.length >= 500) {
+          return { audio: result, voice: EDGE_VOICE_ID }
+        }
+      } catch {
+        // MsEdgeTTS ném lỗi, tiếp tục xuống tầng dưới
+      }
+    }
+
+    // Giọng đã khóa là edge mà edge vừa chết: rơi xuống `say` là đổi giọng
+    if (lockedVoice === EDGE_VOICE_ID) return null
+
+    return { audio: await synthesizeNativeMac(text), voice: MAC_VOICE_ID }
   },
 }
