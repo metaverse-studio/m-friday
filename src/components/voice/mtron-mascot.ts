@@ -156,7 +156,7 @@ class VisorHudRenderer {
     pointer: { x: number; y: number }
   ) {
     const { ctx, canvas } = this
-    if (!ctx) return
+    if (!ctx || !canvas) return
 
     // 1. Quản lý nhịp chớp mắt tự nhiên (Blink logic)
     this.blinkTimer += delta
@@ -395,7 +395,7 @@ export function createMtronMascot(): MtronMascot {
   disposables.push(bodyGeo)
 
   const bodyTexture = createBodyTexture()
-  disposables.push(bodyTexture)
+  if (bodyTexture) disposables.push(bodyTexture)
 
   const bodyMat = new THREE.MeshPhysicalMaterial({
     color: COLOR_ORANGE,
