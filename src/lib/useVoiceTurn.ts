@@ -2,9 +2,11 @@
 
 import { useCallback } from 'react'
 import { fallbackUrlFor, speak, stopSpeaking } from './audio/player'
-import { getIntent } from './intents/registry'
-import { resolveIntent } from './intents/resolve'
-import type { IntentId } from './intents/types'
+import { sessionAgendaLine, sessionSummaryLine } from './intents/narration'
+import { fallbackLineFor, getIntent } from './intents/registry'
+import { resolveTurn } from './intents/resolve'
+import { missingRequiredSlot, withFallbacks } from './intents/slots'
+import type { IntentId, SlotValue, SlotValues } from './intents/types'
 import { useSession } from './session'
 
 const DEMO_QUEUE: IntentId[] = [
@@ -142,10 +144,43 @@ export function useVoiceTurn() {
   const store = useSession
 
   const runIntent = useCallback(
-    async (id: IntentId, startedAt?: number) => {
-      const { runIntent: markIntent, setSpeaking, setThinking, recordLatency, setCurrentLine } =
-        store.getState()
+    async (
+      id: IntentId,
+      startedAt?: number,
+      slots: SlotValues = {},
+      /** Lượt sửa tham số của intent đang hiển thị: không vào sổ lịch sử */
+      refinement = false,
+    ) => {
+      const {
+        runIntent: markIntent,
+        refineSlots,
+        setSpeaking,
+        setThinking,
+        recordLatency,
+        setCurrentLine,
+      } = store.getState()
       const intent = getIntent(id)
+
+      // Lượt tinh chỉnh mang theo đúng slot khách vừa sửa; các slot còn lại
+      // giữ nguyên giá trị đang hiển thị chứ không quay về mặc định
+      const incoming = refinement ? { ...store.getState().activeSlots, ...slots } : slots
+
+      /**
+       * Thiếu một tham số bắt buộc thì Friday hỏi lại thay vì đoán hộ.
+       * Lượt dừng ở đây; chip bar đổi thành các lựa chọn của slot để
+       * presenter vẫn đi tiếp được khi micro hỏng.
+       */
+      const missing = missingRequiredSlot(intent.slots, incoming)
+      if (missing) {
+        store.getState().setPendingSlot({ intentId: id, slot: missing, filled: incoming })
+        setSpeaking(true)
+        setCurrentLine(missing.question)
+        await speak(missing.question, () => setThinking(false))
+        store.getState().setSpeaking(false)
+        return
+      }
+
+      const filled = intent.slots ? withFallbacks(intent.slots, incoming) : incoming
 
       if (intent.requiresFido && !intent.fidoInWidget) {
         const label = intent.fidoLabel || `Xác thực để ${intent.label.toLowerCase()}`
@@ -158,23 +193,38 @@ export function useVoiceTurn() {
         })
       }
 
-      markIntent(id)
+      // Lịch sử phải chụp TRƯỚC khi intent này vào sổ, nếu không Friday sẽ
+      // tự nhắc lại chính nội dung mình đang nói
+      const history = store.getState().history
+      if (refinement) {
+        refineSlots(filled)
+      } else {
+        markIntent(id, filled)
+      }
       setSpeaking(true)
       // Câu mẫu được nạp sẵn để dự phòng, nhưng chưa hiển thị: nếu LLM trả
       // lời kịp thì chữ sẽ bị thay ngay trước mắt khách. Giữ skeleton cho
       // tới khi có tiếng, chữ và tiếng cùng xuất hiện một lần.
       setThinking(true)
 
-      let line = getIntent(id).fallbackLine
+      let line = fallbackLineFor(id, filled)
+
+      /**
+       * Câu chốt phiên phải kể đúng việc đã làm trong phiên này, mà chỉ client
+       * mới biết lịch sử đó. Dựng tại chỗ và không đưa qua LLM: nội dung đã là
+       * sự thật của phiên, cho LLM viết lại chỉ thêm rủi ro sai tên nghiệp vụ.
+       */
+      const narrated = id === 'SESSION_SUMMARY'
+      if (narrated) line = sessionSummaryLine(history)
       setCurrentLine(line)
 
       // Lời thoại cố định thì không có gì để LLM sinh, khỏi mất một round-trip
-      if (!intent.fixedLine) {
+      if (!intent.fixedLine && !narrated) {
         try {
           const response = await fetch('/api/reply', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ intentId: id }),
+            body: JSON.stringify({ intentId: id, slots: filled, history }),
           })
           const data = (await response.json()) as { reply: string }
           if (data.reply) {
@@ -199,7 +249,9 @@ export function useVoiceTurn() {
             recordLatency(randomLatency)
           }
         },
-        fallbackUrlFor(id),
+        // Audio dự phòng được dựng sẵn cho giá trị mặc định. Khi khách đổi
+        // tham số, file đó đọc số cũ — thà im lặng còn hơn đọc sai số.
+        line === intent.fallbackLine ? fallbackUrlFor(id) : undefined,
       )
 
       store.getState().setThinking(false)
@@ -207,6 +259,50 @@ export function useVoiceTurn() {
     },
     [store],
   )
+
+  /**
+   * Mở phiên: chào xong thì nêu ngay agenda của buổi sáng.
+   *
+   * Lời chào đứng một mình không cho khách biết nên hỏi gì. Agenda biến
+   * 14 lượt rời rạc thành một phiên có mở đầu — và chính là thứ khiến
+   * câu chốt phiên ở cuối có cái để đối chiếu.
+   */
+  const openSession = useCallback(async () => {
+    await runIntent('GREETING')
+    const line = sessionAgendaLine()
+    const state = store.getState()
+    state.setSpeaking(true)
+    state.setCurrentLine(line)
+    await speak(line, () => store.getState().setThinking(false))
+    store.getState().setSpeaking(false)
+  }, [store, runIntent])
+
+  /**
+   * Presenter chạm một lựa chọn trên chip bar lúc Friday đang chờ.
+   * Đây là đường lui khi micro hoặc STT hỏng giữa lượt hỏi ngược.
+   */
+  const fillSlot = useCallback(
+    async (value: SlotValue) => {
+      const pending = store.getState().pendingSlot
+      if (!pending) return
+      store.getState().setPendingSlot(null)
+      await runIntent(pending.intentId, undefined, {
+        ...pending.filled,
+        [pending.slot.id]: value,
+      })
+    },
+    [store, runIntent],
+  )
+
+  /** Bỏ lượt đang chờ, trả chip bar về bình thường */
+  const cancelPendingSlot = useCallback(() => {
+    stopSpeaking()
+    const state = store.getState()
+    state.setPendingSlot(null)
+    state.setSpeaking(false)
+    state.setThinking(false)
+    state.setCurrentLine('Dạ vâng, anh cần gì thêm em hỗ trợ ngay ạ.')
+  }, [store])
 
   const stopListening = useCallback(() => {
     // Có recorder tức là đang ghi âm thật. Chạm thêm lần nữa trong lúc chờ
@@ -385,11 +481,16 @@ export function useVoiceTurn() {
       }
 
       setTranscript(`“${text}”`)
-      const intentId = await resolveIntent(text)
+      const state = store.getState()
+      const turn = await resolveTurn(text, {
+        activeIntent: state.activeIntent,
+        pendingSlot: state.pendingSlot,
+      })
       await new Promise((resolve) => setTimeout(resolve, 450))
       setListening(false)
       setTranscript('')
-      await runIntent(intentId, startedAt)
+
+      await runIntent(turn.intentId, startedAt, turn.slots, turn.refinement)
     }
 
     /**
@@ -429,8 +530,17 @@ export function useVoiceTurn() {
     stopSpeaking()
     demoQueueIndex = 0
     store.getState().resetSession()
-    void runIntent('GREETING')
-  }, [store, runIntent])
+    void openSession()
+  }, [store, openSession])
 
-  return { runIntent, startListening, stopListening, cancelListening, resetSession }
+  return {
+    runIntent,
+    openSession,
+    fillSlot,
+    cancelPendingSlot,
+    startListening,
+    stopListening,
+    cancelListening,
+    resetSession,
+  }
 }

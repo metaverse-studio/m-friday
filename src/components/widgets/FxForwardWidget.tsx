@@ -5,13 +5,18 @@ import { fxFloatRisk, fxForwardCost, fxSaving } from '@/lib/data/calc'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTrieu, formatTrieuRaw } from '@/lib/data/format'
 import { getIntent } from '@/lib/intents/registry'
+import { numberSlot } from '@/lib/intents/slots'
 import { useSession } from '@/lib/session'
 
 export function FxForwardWidget() {
   const { spotSellRate, forwardRate, twoWeekChangePercent } = fixtures.fx
   const { pendingLc } = fixtures.tradeFinance
   const requestFido = useSession((s) => s.requestFido)
+  const slots = useSession((s) => s.activeSlots)
   const [placed, setPlaced] = useState(false)
+
+  // Số USD khách vừa chọn; không có thì giữ khoản thanh toán mặc định
+  const amountUsd = numberSlot(slots, 'amountUsd') ?? pendingLc.amountUsd
 
   const handleApprove = () => {
     requestFido(getIntent('FX_FORWARD').fidoLabel ?? '', () => {
@@ -38,7 +43,7 @@ export function FxForwardWidget() {
       </p>
 
       <p className="mt-2 font-medium text-caption text-white/55 m-0">
-        Khoản thanh toán {pendingLc.partner} · {pendingLc.amountUsd.toLocaleString('vi-VN')} USD · đáo hạn {pendingLc.dueDate}
+        Khoản thanh toán {pendingLc.partner} · {amountUsd.toLocaleString('vi-VN')} USD · đáo hạn {pendingLc.dueDate}
       </p>
 
       {/* 14-day trend bar chart */}
@@ -59,7 +64,7 @@ export function FxForwardWidget() {
             THẢ NỔI
           </p>
           <p className="mt-2 font-bold text-title text-msb-orange m-0">
-            {formatTrieuRaw(fxFloatRisk())} tr
+            {formatTrieuRaw(fxFloatRisk(amountUsd))} tr
           </p>
           <p className="mt-1 font-normal text-caption text-white/35 m-0">
             chi phí phát sinh
@@ -71,7 +76,7 @@ export function FxForwardWidget() {
             KHÓA KỲ HẠN
           </p>
           <p className="mt-2 font-bold text-title text-signal m-0">
-            {formatTrieuRaw(fxForwardCost())} tr
+            {formatTrieuRaw(fxForwardCost(amountUsd))} tr
           </p>
           <p className="mt-1 font-normal text-caption text-white/35 m-0">
             tại {forwardRate.toLocaleString('vi-VN')}
@@ -80,7 +85,7 @@ export function FxForwardWidget() {
       </div>
 
       <p className="mt-3.5 font-bold text-small text-msb-gold m-0">
-        Tiết kiệm ròng khoảng {formatTrieu(fxSaving())} VNĐ
+        Tiết kiệm ròng khoảng {formatTrieu(fxSaving(amountUsd))} VNĐ
       </p>
 
       {placed ? (

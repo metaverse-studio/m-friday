@@ -1,14 +1,25 @@
 import { create } from 'zustand'
-import { getIntent } from './intents/registry'
-import type { IntentId } from './intents/types'
+import { nextChipsFor } from './intents/chips'
+import type { IntentId, SlotSpec, SlotValues } from './intents/types'
 
 export type Phase = 'locked' | 'dashboard'
 
 const INITIAL_CHIPS: IntentId[] = ['CASH_FLOW', 'RECENT_ACTIONS', 'TRADE_FINANCE']
 
+/** Slot Friday vừa hỏi và đang chờ khách trả lời */
+export type PendingSlot = {
+  intentId: IntentId
+  slot: SlotSpec
+  /** Các slot đã điền được từ câu nói ban đầu */
+  filled: SlotValues
+}
+
 type SessionState = {
   phase: Phase
   activeIntent: IntentId | null
+  /** Tham số của intent đang hiển thị, widget đọc thẳng từ đây */
+  activeSlots: SlotValues
+  pendingSlot: PendingSlot | null
   chips: IntentId[]
   history: IntentId[]
   isListening: boolean
@@ -24,7 +35,10 @@ type SessionState = {
   transcript: string
 
   unlock: () => void
-  runIntent: (id: IntentId) => void
+  runIntent: (id: IntentId, slots?: SlotValues) => void
+  /** Cập nhật tham số mà không mở lượt mới — dùng cho lượt tinh chỉnh */
+  refineSlots: (slots: SlotValues) => void
+  setPendingSlot: (pending: PendingSlot | null) => void
   setListening: (value: boolean) => void
   setSpeaking: (value: boolean) => void
   setThinking: (value: boolean) => void
@@ -44,6 +58,8 @@ const DEFAULT_LINE =
 export const useSession = create<SessionState>((set) => ({
   phase: 'locked',
   activeIntent: null,
+  activeSlots: {},
+  pendingSlot: null,
   chips: INITIAL_CHIPS,
   history: [],
   isListening: false,
@@ -58,16 +74,24 @@ export const useSession = create<SessionState>((set) => ({
 
   unlock: () => set({ phase: 'dashboard' }),
 
-  runIntent: (id) =>
+  runIntent: (id, slots = {}) =>
     set((state) => {
-      const next = getIntent(id).nextChips
+      const history = id === 'GREETING' ? state.history : [...state.history, id]
+      const next = nextChipsFor(id, history)
       return {
         activeIntent: id === 'GREETING' ? null : id,
+        activeSlots: slots,
+        pendingSlot: null,
         chips: next.length > 0 ? next : state.chips,
-        history: id === 'GREETING' ? state.history : [...state.history, id],
+        history,
         drawerOpen: false,
       }
     }),
+
+  refineSlots: (slots) =>
+    set((state) => ({ activeSlots: { ...state.activeSlots, ...slots }, pendingSlot: null })),
+
+  setPendingSlot: (pending) => set({ pendingSlot: pending }),
 
   setListening: (value) => set({ isListening: value }),
   setSpeaking: (value) => set({ isSpeaking: value }),
@@ -88,6 +112,8 @@ export const useSession = create<SessionState>((set) => ({
   resetSession: () =>
     set({
       activeIntent: null,
+      activeSlots: {},
+      pendingSlot: null,
       chips: INITIAL_CHIPS,
       history: [],
       isListening: false,

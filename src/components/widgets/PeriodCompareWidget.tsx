@@ -1,9 +1,15 @@
-import { cashMargin, periodGrowthInflow } from '@/lib/data/calc'
+'use client'
+
+import { cashMargin, periodData, periodGrowthInflow } from '@/lib/data/calc'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTy } from '@/lib/data/format'
+import { useSession } from '@/lib/session'
 
 export function PeriodCompareWidget() {
-  const { month, inflowThis, inflowLast, outflowThis, outflowLast } = fixtures.periodCompare
+  const slots = useSession((s) => s.activeSlots)
+  // Tháng khách vừa hỏi; câu nói không nêu tháng thì lấy tháng gần nhất
+  const month = String(slots.month ?? fixtures.periodCompare.defaultMonth)
+  const { inflowThis, inflowLast, outflowThis, outflowLast } = periodData(month)
 
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">
@@ -12,7 +18,7 @@ export function PeriodCompareWidget() {
       </p>
 
       <p className="mt-2.5 font-bold text-h3 tracking-[-0.02em] text-signal m-0">
-        +{formatPercent(periodGrowthInflow())}
+        +{formatPercent(periodGrowthInflow(month))}
         <span className="font-bold text-small text-white/45"> DÒNG THU</span>
       </p>
 
@@ -53,7 +59,7 @@ export function PeriodCompareWidget() {
       <div className="flex justify-between mt-4 border-t border-white/12 pt-3 font-normal text-caption text-white/50">
         <span>Biên dòng tiền</span>
         <span className="font-bold text-msb-gold">
-          {formatPercent(cashMargin('last'))} → {formatPercent(cashMargin('this'))}
+          {formatPercent(cashMargin('last', month))} → {formatPercent(cashMargin('this', month))}
         </span>
       </div>
 

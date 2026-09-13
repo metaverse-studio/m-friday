@@ -109,12 +109,33 @@ export const fixtures = {
     nearest: loanContracts[0],
   },
 
+  /**
+   * Ba tháng để slot `month` của PERIOD_COMPARE có dữ liệu thật.
+   * Không có bảng này thì khách hỏi tháng nào Friday cũng đọc một bộ số,
+   * và slot chỉ là trang trí.
+   */
   periodCompare: {
-    month: 'Tháng 8',
-    inflowThis: 248_000_000_000,
-    inflowLast: 207_000_000_000,
-    outflowThis: 196_000_000_000,
-    outflowLast: 174_000_000_000,
+    defaultMonth: 'Tháng 8',
+    byMonth: {
+      'Tháng 6': {
+        inflowThis: 196_000_000_000,
+        inflowLast: 178_000_000_000,
+        outflowThis: 158_000_000_000,
+        outflowLast: 149_000_000_000,
+      },
+      'Tháng 7': {
+        inflowThis: 221_000_000_000,
+        inflowLast: 193_000_000_000,
+        outflowThis: 179_000_000_000,
+        outflowLast: 161_000_000_000,
+      },
+      'Tháng 8': {
+        inflowThis: 248_000_000_000,
+        inflowLast: 207_000_000_000,
+        outflowThis: 196_000_000_000,
+        outflowLast: 174_000_000_000,
+      },
+    },
   },
 
   contacts: {
@@ -125,3 +146,14 @@ export const fixtures = {
 } as const
 
 export type FixtureKey = keyof typeof fixtures
+
+export type PeriodMonth = keyof typeof fixtures.periodCompare.byMonth
+
+export const PERIOD_MONTHS = Object.keys(
+  fixtures.periodCompare.byMonth,
+) as PeriodMonth[]
+
+/** Tháng hợp lệ hay không — dùng để lọc giá trị slot đến từ STT và LLM */
+export function isPeriodMonth(value: unknown): value is PeriodMonth {
+  return typeof value === 'string' && value in fixtures.periodCompare.byMonth
+}

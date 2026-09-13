@@ -14,7 +14,15 @@ import { Orb } from './voice/Orb'
 import { WidgetHost } from './widgets/WidgetHost'
 
 export function Dashboard() {
-  const { runIntent, startListening, stopListening, cancelListening } = useVoiceTurn()
+  const {
+    runIntent,
+    openSession,
+    fillSlot,
+    cancelPendingSlot,
+    startListening,
+    stopListening,
+    cancelListening,
+  } = useVoiceTurn()
   const activeIntent = useSession((s) => s.activeIntent)
   const isSpeaking = useSession((s) => s.isSpeaking)
   const isListening = useSession((s) => s.isListening)
@@ -24,8 +32,8 @@ export function Dashboard() {
   useEffect(() => {
     if (greeted.current) return
     greeted.current = true
-    void runIntent('GREETING')
-  }, [runIntent])
+    void openSession()
+  }, [openSession])
 
   const talkButtonText = isSpeaking
     ? 'CHẠM ĐỂ NGẮT LỜI'
@@ -147,7 +155,11 @@ export function Dashboard() {
 
           {/* Bottom Control Bar */}
           <footer className="flex-none border-t border-white/12 bg-[#0D2745]/90 backdrop-blur-md">
-            <ChipBar onSelect={(id) => void runIntent(id)} />
+            <ChipBar
+              onSelect={(id) => void runIntent(id)}
+              onSlotPick={(value) => void fillSlot(value)}
+              onSlotCancel={cancelPendingSlot}
+            />
 
             <div className="flex items-stretch gap-2.5 sm:gap-3 px-4 sm:px-5 pt-2 sm:pt-3 pb-3 sm:pb-4">
               <button
@@ -249,7 +261,11 @@ export function Dashboard() {
             {/* Bottom Actions for Desktop */}
             <div className="border-t border-white/12 bg-[#0D2745]/90 backdrop-blur-md pb-5 pt-1">
               <div className="mb-3">
-                <ChipBar onSelect={(id) => void runIntent(id)} />
+                <ChipBar
+              onSelect={(id) => void runIntent(id)}
+              onSlotPick={(value) => void fillSlot(value)}
+              onSlotCancel={cancelPendingSlot}
+            />
               </div>
 
               <div className="flex items-stretch gap-3 px-5">

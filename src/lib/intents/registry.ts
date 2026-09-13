@@ -1,10 +1,70 @@
-import { formatTrieu, formatTy, formatTyFixed1 } from '../data/format'
-import { cctgYield, obligationTotal } from '../data/calc'
-import { fixtures } from '../data/fixtures'
-import { allowedFor } from './allowed'
-import type { Intent, IntentId } from './types'
+import { formatPercent, formatTrieu, formatTy, formatTyFixed1 } from '../data/format'
+import {
+  cashMargin,
+  cctgYield,
+  fxFloatRisk,
+  fxForwardCost,
+  fxSaving,
+  obligationTotal,
+  periodData,
+  periodGrowthInflow,
+} from '../data/calc'
+import { PERIOD_MONTHS, fixtures } from '../data/fixtures'
+import { allowedFor, renderNumber } from './allowed'
+import { extractNumberTokens } from './numbers'
+import {
+  AMOUNT_USD_SLOT,
+  MONTH_SLOT,
+  PRINCIPAL_SLOT,
+  TERM_DAYS_SLOT,
+  numberSlot,
+} from './slots'
+import type { Intent, IntentId, SlotValues } from './types'
 
 const f = fixtures
+
+/**
+ * Mọi cách đọc hợp lệ của một danh sách số. Dùng cho `derivedNumbers`:
+ * mỗi giá trị slot kéo theo một bộ số dẫn xuất, và bộ đó phải lọt guard.
+ */
+function readings(...values: number[]): string[] {
+  return values.flatMap(renderNumber)
+}
+
+/** Câu tư vấn CCTG tính theo đúng số tiền và kỳ hạn khách chọn */
+function cctgLine(principal: number, termDays: number): string {
+  return `Em gợi ý anh trích ${formatTy(
+    principal,
+  )} mua Chứng chỉ tiền gửi MSB kỳ hạn ${termDays} ngày, lãi suất ${formatPercent(
+    f.cctg.annualRate * 100,
+  )} một năm, dự tính đem lại ${formatTrieu(cctgYield(principal, termDays))} VNĐ ạ.`
+}
+
+/** Câu báo cáo so sánh kỳ của một tháng bất kỳ trong bảng */
+function periodLine(month: string): string {
+  const { inflowThis, inflowLast } = periodData(month)
+  return `Dạ em báo cáo anh, ${month} năm nay công ty thu về ${formatTy(
+    inflowThis,
+  )}, tăng ${formatPercent(periodGrowthInflow(month))} so với ${formatTy(
+    inflowLast,
+  )} cùng kỳ năm ngoái ạ.`
+}
+
+/**
+ * Số dẫn xuất của bảng so sánh kỳ, tính cho cả ba tháng.
+ *
+ * Kể cả số trong tên tháng: `allowedFor` duyệt giá trị của fixture chứ không
+ * duyệt khóa, nên "Tháng 6" nằm ở vị trí khóa thì con số 6 không lọt vào
+ * danh sách — và guard chặn đúng câu Friday vừa nói tên tháng khách hỏi.
+ */
+function periodExtras(): string[] {
+  return PERIOD_MONTHS.flatMap((month) => [
+    ...extractNumberTokens(month),
+    formatPercent(periodGrowthInflow(month)).replace('%', ''),
+    formatPercent(cashMargin('this', month)).replace('%', ''),
+    formatPercent(cashMargin('last', month)).replace('%', ''),
+  ])
+}
 
 export const INTENTS: Record<IntentId, Intent> = {
   FIDO_LOGIN: {
@@ -57,11 +117,11 @@ export const INTENTS: Record<IntentId, Intent> = {
     keywords: [/so sanh/, /cung ky/, /thang nay so/],
     description: 'So sánh kết quả tháng này với cùng kỳ năm trước.',
     fixtureKey: 'periodCompare',
-    fallbackLine:
-      'Dạ em báo cáo anh, Tháng 8 năm nay công ty thu về 248 tỷ, tăng 19,8% so với 207 tỷ cùng kỳ năm ngoái ạ.',
-
-    allowedNumbers: allowedFor('periodCompare', ['19,8', '12,6']),
+    fallbackLine: periodLine(f.periodCompare.defaultMonth),
+    dynamicLine: (slots) => periodLine(String(slots.month ?? f.periodCompare.defaultMonth)),
+    allowedNumbers: allowedFor('periodCompare', periodExtras()),
     nextChips: ['CASH_FLOW', 'LOAN_BALANCE', 'OBLIGATION_CALENDAR'],
+    slots: [MONTH_SLOT],
   },
 
   OBLIGATION_CALENDAR: {
@@ -180,17 +240,23 @@ export const INTENTS: Record<IntentId, Intent> = {
     description:
       'Tư vấn gửi tiền nhàn rỗi vào chứng chỉ tiền gửi để sinh lời.',
     fixtureKey: 'cctg',
-    fallbackLine: `Em gợi ý anh trích ${formatTy(
-      f.cctg.principal,
-    )} mua Chứng chỉ tiền gửi MSB kỳ hạn 15 ngày, lãi suất 5,4% một năm, dự tính đem lại ${formatTrieu(
-      cctgYield(),
-    )} VNĐ ạ.`,
-
+    fallbackLine: cctgLine(f.cctg.principal, f.cctg.termDays),
+    dynamicLine: (slots) =>
+      cctgLine(
+        numberSlot(slots, 'principal') ?? f.cctg.principal,
+        numberSlot(slots, 'termDays') ?? f.cctg.termDays,
+      ),
     allowedNumbers: allowedFor('cctg', ['27,5', '10,1', '17,4', '33,3']),
+    derivedNumbers: (slots) => {
+      const principal = numberSlot(slots, 'principal') ?? f.cctg.principal
+      const termDays = numberSlot(slots, 'termDays') ?? f.cctg.termDays
+      return readings(principal, termDays, cctgYield(principal, termDays))
+    },
     nextChips: ['OBLIGATION_CALENDAR', 'LOAN_BALANCE', 'CASH_FLOW'],
     requiresFido: true,
     fidoInWidget: true,
     fidoLabel: `Xác nhận mua Chứng chỉ tiền gửi ${formatTyFixed1(f.cctg.principal)} VNĐ`,
+    slots: [PRINCIPAL_SLOT, TERM_DAYS_SLOT],
   },
 
   FX_FORWARD: {
@@ -205,10 +271,24 @@ export const INTENTS: Record<IntentId, Intent> = {
       'Tỷ giá bán USD của MSB hiện là 26.180 và đã tăng 1,5% trong hai tuần qua. Em gợi ý anh khóa tỷ giá kỳ hạn ở mức 26.310 để phòng ngừa rủi ro ạ.',
 
     allowedNumbers: allowedFor('fx', ['250.000', '250', '25/09', '98,2', '32,5', '65,7']),
+    derivedNumbers: (slots) => {
+      const amountUsd = numberSlot(slots, 'amountUsd') ?? f.tradeFinance.pendingLc.amountUsd
+      return [
+        amountUsd.toLocaleString('vi-VN'),
+        ...readings(
+          amountUsd,
+          amountUsd / 1000,
+          fxForwardCost(amountUsd),
+          fxFloatRisk(amountUsd),
+          fxSaving(amountUsd),
+        ),
+      ]
+    },
     nextChips: ['TRADE_FINANCE', 'CASH_FLOW', 'OBLIGATION_CALENDAR'],
     requiresFido: true,
     fidoInWidget: true,
     fidoLabel: `Đặt lệnh kỳ hạn USD/VND tại ${f.fx.forwardRate.toLocaleString('vi-VN')}`,
+    slots: [AMOUNT_USD_SLOT],
   },
 
   LOAN_BALANCE: {
@@ -292,4 +372,21 @@ export const BUSINESS_INTENT_IDS: IntentId[] = [
 
 export function getIntent(id: IntentId): Intent {
   return INTENTS[id] ?? INTENTS.UNKNOWN
+}
+
+/** Câu mẫu đã tính theo slot; rơi về `fallbackLine` khi intent không có slot */
+export function fallbackLineFor(id: IntentId, slots: SlotValues = {}): string {
+  const intent = getIntent(id)
+  return intent.dynamicLine ? intent.dynamicLine(slots) : intent.fallbackLine
+}
+
+/**
+ * Danh sách số hợp lệ đã nở ra theo slot. Không có bước này thì khách đổi
+ * tham số là guard chặn sạch câu của Friday, vì mọi con số tính lại đều
+ * nằm ngoài `allowedNumbers` tĩnh.
+ */
+export function allowedNumbersFor(id: IntentId, slots: SlotValues = {}): string[] {
+  const intent = getIntent(id)
+  if (!intent.derivedNumbers) return intent.allowedNumbers
+  return [...new Set([...intent.allowedNumbers, ...intent.derivedNumbers(slots)])]
 }

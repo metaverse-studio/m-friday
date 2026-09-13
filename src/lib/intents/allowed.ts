@@ -15,7 +15,7 @@ function viDecimal(value: number): string {
  * dưới dạng JSON thô (65000000000) nên phải tự quy đổi sang "65 tỷ";
  * danh sách này chính là bản nháp quy đổi mà numeric guard chấp nhận.
  */
-function renderNumber(value: number): string[] {
+export function renderNumber(value: number): string[] {
   if (!Number.isFinite(value) || value === 0) return []
   const forms: string[] = []
 

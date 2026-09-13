@@ -5,12 +5,18 @@ import { cctgYield, idleCash, obligationTotal } from '@/lib/data/calc'
 import { fixtures } from '@/lib/data/fixtures'
 import { formatPercent, formatTrieuRaw, formatTy, formatTyRaw, formatTyRawFixed1 } from '@/lib/data/format'
 import { getIntent } from '@/lib/intents/registry'
+import { numberSlot } from '@/lib/intents/slots'
 import { useSession } from '@/lib/session'
 
 export function CctgWidget() {
-  const { principal, termDays, annualRate, bufferKept } = fixtures.cctg
+  const { annualRate, bufferKept } = fixtures.cctg
   const requestFido = useSession((s) => s.requestFido)
+  const slots = useSession((s) => s.activeSlots)
   const [purchased, setPurchased] = useState(false)
+
+  // Số tiền trích và kỳ hạn khách vừa chọn, hoặc mức gợi ý mặc định
+  const principal = numberSlot(slots, 'principal') ?? fixtures.cctg.principal
+  const termDays = numberSlot(slots, 'termDays') ?? fixtures.cctg.termDays
 
   const handleApprove = () => {
     requestFido(getIntent('SUGGEST_CCTG').fidoLabel ?? '', () => {
@@ -60,7 +66,7 @@ export function CctgWidget() {
           LỢI TỨC DỰ KIẾN
         </p>
         <p className="mt-1.5 font-bold text-h3 text-signal m-0">
-          {formatTrieuRaw(cctgYield())} triệu VNĐ
+          {formatTrieuRaw(cctgYield(principal, termDays))} triệu VNĐ
         </p>
         <p className="mt-1.5 font-normal text-caption text-white/45 m-0">
           Vẫn giữ đệm thanh khoản {formatTyRaw(bufferKept)} tỷ VNĐ
