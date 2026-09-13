@@ -10,6 +10,7 @@ import { FidoModal } from './fido/FidoModal'
 import { ChipBar } from './voice/ChipBar'
 import { Drawer } from './voice/Drawer'
 import { FridayLine, FridayText } from './voice/FridayLine'
+import { HologramRM } from './voice/HologramRM'
 import { Orb } from './voice/Orb'
 import { WidgetHost } from './widgets/WidgetHost'
 
@@ -100,52 +101,105 @@ export function Dashboard() {
 
         {/* ─── MOBILE & TABLET LAYOUT (< lg) ─── */}
         <div className="flex lg:hidden flex-col flex-1 overflow-hidden min-h-0">
-          {/* RM Friday Dialogue Strip */}
-          <section className="flex-none px-4 sm:px-5 py-2.5 sm:py-3 border-b border-white/12 bg-card/85 backdrop-blur-md">
-            <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
-              <div className="w-4 h-4 rounded-full bg-msb-gold/20 border border-msb-gold/60 flex items-center justify-center font-bold text-caption text-msb-gold">
-                F
+          {/* RM Friday Dialogue Strip - Sticky HUD khi xem widget */}
+          {activeIntent && activeIntent !== 'GREETING' && (
+            <section className="flex-none px-4 py-2 border-b border-white/12 bg-card/90 backdrop-blur-md animate-[riseIn_0.2s_ease-out]">
+              <div className="flex items-center gap-2.5">
+                <div className="shrink-0 flex items-center justify-center">
+                  <HologramRM
+                    size={52}
+                    interactive={true}
+                    onClick={handleTalkClick}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
+                      FRIDAY · TRỢ LÝ
+                    </span>
+                    <FridayLine />
+                    <button
+                      type="button"
+                      onClick={() => void runIntent('GREETING')}
+                      className="ml-auto text-caption font-medium text-white/50 hover:text-white px-2 py-0.5 rounded bg-white/5 border border-white/10 active:scale-95 transition-all cursor-pointer"
+                    >
+                      ← Đóng
+                    </button>
+                  </div>
+                  <FridayText className="font-normal text-caption text-white/90 m-0 line-clamp-2" />
+                </div>
               </div>
-              <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
-                FRIDAY · TRỢ LÝ QHKH DOANH NGHIỆP
-              </span>
-              <FridayLine />
-            </div>
-            <FridayText className="font-normal text-caption sm:text-small text-white/90 m-0" />
-          </section>
+            </section>
+          )}
 
-          {/* Main Content Area (Scrollable Widget / Open Prompts) */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-3 sm:py-4 no-scrollbar min-h-0">
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar min-h-0">
             {!activeIntent || activeIntent === 'GREETING' ? (
-              <div className="animate-[riseIn_0.3s_ease-out]">
-                <p className="font-semibold text-caption tracking-[0.18em] text-white/35 m-0 uppercase">
-                  GỢI Ý MỞ PHIÊN
-                </p>
-                <div className="mt-3 flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void runIntent('CASH_FLOW')}
-                    className="w-full flex justify-between items-center gap-2.5 p-3 rounded-[8px] bg-card/60 hover:bg-card/90 border border-white/10 hover:border-msb-gold/40 text-small text-white/85 hover:text-white text-left cursor-pointer transition-all"
-                  >
-                    <span className="font-medium">“Tuần này thu chi thế nào?”</span>
-                    <span className="font-normal text-caption text-white/40 shrink-0">Dòng tiền →</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void runIntent('RECENT_ACTIONS')}
-                    className="w-full flex justify-between items-center gap-2.5 p-3 rounded-[8px] bg-card/60 hover:bg-card/90 border border-white/10 hover:border-msb-gold/40 text-small text-white/85 hover:text-white text-left cursor-pointer transition-all"
-                  >
-                    <span className="font-medium">“Có gì chờ anh duyệt không?”</span>
-                    <span className="font-normal text-caption text-white/40 shrink-0">Phê duyệt →</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void runIntent('FRAUD_ALERT')}
-                    className="w-full flex justify-between items-center gap-2.5 p-3 rounded-[8px] bg-card/60 hover:bg-card/90 border border-white/10 hover:border-msb-gold/40 text-small text-white/85 hover:text-white text-left cursor-pointer transition-all"
-                  >
-                    <span className="font-medium">“Có gì bất thường không?”</span>
-                    <span className="font-normal text-caption text-white/40 shrink-0">Rủi ro →</span>
-                  </button>
+              <div className="h-full flex flex-col justify-between py-1 animate-[riseIn_0.3s_ease-out]">
+                {/* Mobile Hero Hologram RM Stage */}
+                <div className="flex flex-col items-center justify-center my-auto pt-2">
+                  <div className="relative flex flex-col items-center">
+                    {/* Soft radial glow behind mobile hero */}
+                    <div className="absolute w-[180px] h-[180px] rounded-full bg-[radial-gradient(circle,rgba(63,208,255,0.18)_0%,rgba(13,39,69,0)_70%)] blur-md pointer-events-none" />
+                    <HologramRM
+                      size={155}
+                      interactive={true}
+                      onClick={handleTalkClick}
+                      showStatusBadge={true}
+                    />
+                  </div>
+
+                  {/* Friday Welcome Dialogue Card */}
+                  <div className="mt-2.5 w-full p-3 rounded-[12px] bg-card/75 border border-white/10 backdrop-blur-md text-center">
+                    <div className="flex items-center justify-center gap-1.5 mb-1">
+                      <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
+                        FRIDAY · TRỢ LÝ QHKH
+                      </span>
+                      <FridayLine />
+                    </div>
+                    <FridayText className="font-normal text-caption text-white/90 m-0" />
+                  </div>
+                </div>
+
+                {/* Quick Prompts - Touch & Thumb Optimized */}
+                <div className="mt-3">
+                  <p className="font-semibold text-caption tracking-[0.18em] text-white/35 m-0 mb-2 uppercase">
+                    GỢI Ý LỆNH NHANH
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void runIntent('CASH_FLOW')}
+                      className="p-2.5 rounded-[10px] bg-card/65 active:bg-card/95 border border-white/10 active:border-msb-gold/50 text-left cursor-pointer transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-semibold text-caption text-white/90">Dòng tiền tuần</span>
+                      <span className="font-normal text-[11px] text-white/40 mt-1">Thu chi ròng →</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void runIntent('RECENT_ACTIONS')}
+                      className="p-2.5 rounded-[10px] bg-card/65 active:bg-card/95 border border-white/10 active:border-msb-gold/50 text-left cursor-pointer transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-semibold text-caption text-white/90">Phê duyệt lệnh</span>
+                      <span className="font-normal text-[11px] text-white/40 mt-1">Ký FIDO →</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void runIntent('FRAUD_ALERT')}
+                      className="p-2.5 rounded-[10px] bg-card/65 active:bg-card/95 border border-white/10 active:border-msb-gold/50 text-left cursor-pointer transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-semibold text-caption text-white/90">Cảnh báo rủi ro</span>
+                      <span className="font-normal text-[11px] text-white/40 mt-1">Kiểm tra nghi vấn →</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void runIntent('TRADE_FINANCE')}
+                      className="p-2.5 rounded-[10px] bg-card/65 active:bg-card/95 border border-white/10 active:border-msb-gold/50 text-left cursor-pointer transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-semibold text-caption text-white/90">Hạn mức L/C</span>
+                      <span className="font-normal text-[11px] text-white/40 mt-1">Bảo lãnh thương mại →</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -194,8 +248,18 @@ export function Dashboard() {
           {/* Left Column: Cockpit controls, dialogue & prompt suggestions */}
           <div className="w-[380px] lg:w-[410px] flex-none flex flex-col justify-between border-r border-white/12 bg-sapphire/60 backdrop-blur-md overflow-y-auto no-scrollbar">
             <div>
+              {/* Hologram Stage: Thường trực trên buồng lái */}
+              <div className="pt-4 pb-2 px-5 flex flex-col items-center justify-center border-b border-white/12 bg-card/40 backdrop-blur-sm">
+                <HologramRM
+                  size={150}
+                  interactive={true}
+                  onClick={handleTalkClick}
+                  showStatusBadge={true}
+                />
+              </div>
+
               {/* Dialogue Box */}
-              <div className="p-5 border-b border-white/12 bg-card/75 backdrop-blur-sm">
+              <div className="p-4 border-b border-white/12 bg-card/75 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-4 h-4 rounded-full bg-msb-gold/20 border border-msb-gold/60 flex items-center justify-center font-bold text-caption text-msb-gold">
                     F
@@ -300,7 +364,7 @@ export function Dashboard() {
           <div className="flex-1 flex flex-col overflow-y-auto p-6 lg:p-8 bg-[#090E17]/60 backdrop-blur-md no-scrollbar">
             {!activeIntent || activeIntent === 'GREETING' ? (
               <div className="h-full flex flex-col justify-center items-center text-center p-8 card-glass">
-                <div className="w-12 h-12 rounded-full bg-msb-gold/15 border border-msb-gold/60 flex items-center justify-center font-bold text-title text-msb-gold mb-4">
+                <div className="w-14 h-14 rounded-full bg-msb-gold/15 border border-msb-gold/60 flex items-center justify-center font-bold text-title text-msb-gold mb-4">
                   F
                 </div>
                 <h3 className="font-bold text-h3 text-white m-0 tracking-tight">

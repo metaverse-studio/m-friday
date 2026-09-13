@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSession } from '@/lib/session'
+import { HologramRM } from './HologramRM'
 
 type Props = {
   onCancel?: () => void
@@ -35,7 +36,7 @@ export function Orb({ onCancel, onStop }: Props) {
     <AnimatePresence>
       {isListening && (
         <motion.div
-          className="absolute inset-0 z-40 flex flex-col items-center justify-between bg-[#0D2745]/95 p-6 pt-12 pb-8 backdrop-blur-md"
+          className="absolute inset-0 z-40 flex flex-col items-center justify-between bg-[#0D2745]/95 p-6 pt-10 pb-8 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -45,32 +46,14 @@ export function Orb({ onCancel, onStop }: Props) {
           </p>
 
           <div className="flex flex-col items-center my-auto w-full max-w-sm">
-            {/* Concentric spinning square orb */}
-            <div
-              onClick={handleStop}
-              className="relative w-[210px] h-[210px] flex items-center justify-center cursor-pointer my-5 active:scale-95 transition-transform"
-              title="Chạm để gửi lệnh giọng nói"
-            >
-              {/* Radial glow */}
-              <div className="absolute inset-4 bg-[radial-gradient(circle_at_50%_45%,rgba(247,144,9,0.9)_0%,rgba(244,96,12,0.55)_45%,rgba(244,96,12,0)_74%)] blur-[7px] animate-[orbPulse_2.2s_ease-in-out_infinite]" />
-
-              {/* Square 1 */}
-              <div className="absolute inset-0 border-2 border-msb-gold/35 rounded-[24px] animate-[orbSpin_11s_linear_infinite]" />
-
-              {/* Square 2 */}
-              <div className="absolute inset-[30px] border border-white/25 rounded-[16px] animate-[orbSpinR_7s_linear_infinite]" />
-
-              {/* Square 3 */}
-              <div className="absolute inset-[62px] border border-msb-gold/50 rounded-[12px] animate-[orbSpin_5s_linear_infinite]" />
-
-              {/* Center wave bars */}
-              <span className="relative flex items-end gap-0.5 h-[34px]">
-                <i className="w-[3px] h-full bg-white rounded-full animate-[waveBar_0.62s_ease-in-out_infinite]" />
-                <i className="w-[3px] h-full bg-white rounded-full animate-[waveBar_0.62s_ease-in-out_0.08s_infinite]" />
-                <i className="w-[3px] h-full bg-msb-gold rounded-full animate-[waveBar_0.62s_ease-in-out_0.16s_infinite]" />
-                <i className="w-[3px] h-full bg-white rounded-full animate-[waveBar_0.62s_ease-in-out_0.24s_infinite]" />
-                <i className="w-[3px] h-full bg-white rounded-full animate-[waveBar_0.62s_ease-in-out_0.32s_infinite]" />
-              </span>
+            {/* 3D Hologram RM Visual */}
+            <div className="my-2 flex flex-col items-center">
+              <HologramRM
+                size={230}
+                interactive={true}
+                onClick={handleStop}
+                showStatusBadge={true}
+              />
             </div>
 
             {/* Transcript */}
