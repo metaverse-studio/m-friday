@@ -251,7 +251,7 @@ export function Dashboard() {
               {/* Hologram Stage: Thường trực trên buồng lái */}
               <div className="pt-4 pb-2 px-5 flex flex-col items-center justify-center border-b border-white/12 bg-card/40 backdrop-blur-sm">
                 <HologramRM
-                  size={150}
+                  size={170}
                   interactive={true}
                   onClick={handleTalkClick}
                   showStatusBadge={true}

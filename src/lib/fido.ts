@@ -1,3 +1,12 @@
+import {
+  getFixedUserIdSync,
+  getSavedCredentialId,
+  saveCredentialId,
+  clearSavedCredentialId,
+  base64ToBuffer,
+  bufferToBase64,
+} from './fingerprint'
+
 /**
  * Người thật cần thời gian để đưa mặt vào camera hoặc đặt ngón tay, thường
  * 5–15 giây. Mốc 3 giây cũ hủy hộp thoại Face ID trước khi khách kịp phản
@@ -33,30 +42,56 @@ function randomChallenge(): BufferSource {
  *
  * `knownAvailable`: kết quả dò khả năng đã lấy sẵn từ trước. Safari trên iOS
  * chỉ cho gọi WebAuthn trong đúng tác vụ của user gesture; `await` một lệnh
- * bất đồng bộ thật (như isUserVerifyingPlatformAuthenticatorAvailable) trước
- * đó là tiêu gesture, và credentials.create() ném NotAllowedError — hộp thoại
- * Face ID không bao giờ hiện. Vì vậy phải dò từ lúc mở màn hình khóa, còn
- * trong handler thì gọi thẳng, không await gì.
+ * bất đồng bộ thật trước đó là tiêu gesture, và credentials ném NotAllowedError.
+ * Mọi thao tác lấy user.id cố định và saved credential đều chạy đồng bộ 0ms.
  */
 export async function authenticate(
   knownAvailable?: boolean,
 ): Promise<'real' | 'simulated'> {
   if (knownAvailable === false) return 'simulated'
-  // knownAvailable === undefined: khách chạm trước khi dò xong. Không await
-  // gì ở đây cả — gọi thẳng create(), máy không hỗ trợ thì nó tự reject nhanh.
-  // Await chỗ này là tiêu user gesture của Safari, đúng lỗi đang sửa.
 
   try {
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null
     const timer = controller ? setTimeout(() => controller.abort(), TIMEOUT_MS) : null
 
     try {
-      const credential = await navigator.credentials.create({
+      // 1. Kiểm tra xem đã có passkey trên thiết bị này chưa (đồng bộ 0ms)
+      const savedCredId = getSavedCredentialId()
+
+      if (savedCredId) {
+        // ĐÃ CÓ PASSKEY: Gọi navigator.credentials.get() để xác thực tĩnh lặng (chỉ quét Face ID/Touch ID)
+        try {
+          const rawCredId = base64ToBuffer(savedCredId)
+          const assertion = await navigator.credentials.get({
+            publicKey: {
+              challenge: randomChallenge(),
+              allowCredentials: [
+                {
+                  id: rawCredId.buffer as ArrayBuffer,
+                  type: 'public-key',
+                  transports: ['internal'],
+                },
+              ],
+              userVerification: 'required',
+              timeout: TIMEOUT_MS,
+            },
+            signal: controller?.signal,
+          })
+          if (assertion) return 'real'
+        } catch (getErr) {
+          console.warn('[fido] credentials.get() thất bại hoặc passkey bị gỡ, chuyển sang đăng ký mới:', getErr)
+          clearSavedCredentialId()
+        }
+      }
+
+      // 2. CHƯA CÓ PASSKEY (hoặc passkey bị xóa): Đăng ký passkey mới với user.id cố định từ FingerprintJS
+      const fixedUserId = getFixedUserIdSync()
+      const credential = (await navigator.credentials.create({
         publicKey: {
           challenge: randomChallenge(),
           rp: { name: 'MSB Business' },
           user: {
-            id: randomChallenge(),
+            id: fixedUserId.buffer as ArrayBuffer,
             name: 'stark@starkindustry.com',
             displayName: 'Mr Stark',
           },
@@ -71,8 +106,18 @@ export async function authenticate(
           timeout: TIMEOUT_MS,
         },
         signal: controller?.signal,
-      })
-      return credential ? 'real' : 'simulated'
+      })) as (Credential & { rawId?: ArrayBuffer }) | null
+
+      if (credential) {
+        if (credential.rawId) {
+          saveCredentialId(bufferToBase64(credential.rawId))
+        } else if (credential.id) {
+          saveCredentialId(credential.id)
+        }
+        return 'real'
+      }
+
+      return 'simulated'
     } finally {
       if (timer) clearTimeout(timer)
     }

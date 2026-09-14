@@ -22,10 +22,10 @@ export function initHologramScene(
   const width = container.clientWidth || (typeof size === 'number' ? size : 220)
   const height = container.clientHeight || (typeof size === 'number' ? size : 220)
 
-  // 1. Scene & Camera Setup
+  // 1. Scene & Camera Setup - Căn chỉnh góc nhìn bao quát, to rõ toàn thân linh vật không bị cắt xén
   const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 50)
-  camera.position.set(0, 0, 4.3)
+  const camera = new THREE.PerspectiveCamera(43, width / height, 0.1, 50)
+  camera.position.set(0, 0.02, 3.82)
 
   // 2. WebGL Renderer
   const renderer = new THREE.WebGLRenderer({
@@ -36,27 +36,27 @@ export function initHologramScene(
   renderer.setSize(width, height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.15
+  renderer.toneMappingExposure = 1.25
   container.appendChild(renderer.domElement)
 
-  // 3. Hệ thống Chiếu sáng 3 chiều (Lighting Rig)
-  // 3.1 Đèn môi trường dịu nhẹ
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.85)
+  // 3. Hệ thống Chiếu sáng 4 chiều Sci-Fi (Studio Lighting Rig)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.25)
   scene.add(ambientLight)
 
-  // 3.2 Key Light: Đèn chiếu chính từ góc trên-phải (làm sáng mặt và men bóng cam MSB)
-  const keyLight = new THREE.DirectionalLight(0xfff6ec, 1.8)
-  keyLight.position.set(2.6, 3.2, 3.4)
+  const keyLight = new THREE.DirectionalLight(0xfffaee, 2.8)
+  keyLight.position.set(2.2, 2.6, 3.2)
   scene.add(keyLight)
 
-  // 3.3 Fill Light: Đèn phụ màu cyan mát từ góc trái (tạo tương phản cyber)
-  const fillLight = new THREE.DirectionalLight(0x3fd0ff, 0.9)
-  fillLight.position.set(-3.0, 1.2, 2.5)
+  const fillLight = new THREE.DirectionalLight(0x4de0ff, 1.8)
+  fillLight.position.set(-2.8, 1.2, 2.2)
   scene.add(fillLight)
 
-  // 3.4 Rim Light: Đèn viền từ phía sau (tạo vệt sáng rực rỡ trên viền áo choàng đỏ và kim loại)
-  const rimLight = new THREE.DirectionalLight(0xff6000, 1.6)
-  rimLight.position.set(0, 2.0, -3.8)
+  const topLight = new THREE.DirectionalLight(0xffb830, 2.4)
+  topLight.position.set(0, 3.4, 0.4)
+  scene.add(topLight)
+
+  const rimLight = new THREE.DirectionalLight(0xff4400, 2.2)
+  rimLight.position.set(0, 1.0, -3.0)
   scene.add(rimLight)
 
   // 4. Root & Tilt groups
@@ -66,23 +66,23 @@ export function initHologramScene(
   const tiltGroup = new THREE.Group()
   rootGroup.add(tiltGroup)
 
-  // 5. Khởi tạo Linh vật M-Tròn 3D
+  // 5. Khởi tạo Linh vật M-Tròn Superhero 3D
   const mtron = createMtronMascot()
   tiltGroup.add(mtron.group)
 
   // 6. Holographic Environment (Bệ chiếu Hologram & Hạt photon cyber)
-  const COLOR_CYAN = new THREE.Color(0x3fd0ff)
-  const COLOR_GOLD = new THREE.Color(0xffd060)
+  const COLOR_CYAN = new THREE.Color(0x00f0ff)
+  const COLOR_GOLD = new THREE.Color(0xffd700)
 
-  // 6.1 Bệ phát quang Hologram ở đáy
+  // 6.1 Bệ phát quang Hologram ở chân (nằm sát ngay dưới đế giày bốt)
   const baseGroup = new THREE.Group()
-  baseGroup.position.y = -1.60
+  baseGroup.position.y = -1.10
 
-  const baseRingOuterGeo = new THREE.RingGeometry(0.72, 0.82, 48)
+  const baseRingOuterGeo = new THREE.RingGeometry(0.70, 0.82, 48)
   const baseRingOuterMat = new THREE.MeshBasicMaterial({
     color: COLOR_CYAN,
     transparent: true,
-    opacity: 0.45,
+    opacity: 0.55,
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
     depthWrite: false,
@@ -91,11 +91,11 @@ export function initHologramScene(
   baseRingOuter.rotation.x = Math.PI / 2
   baseGroup.add(baseRingOuter)
 
-  const baseRingInnerGeo = new THREE.RingGeometry(0.42, 0.48, 36)
+  const baseRingInnerGeo = new THREE.RingGeometry(0.40, 0.47, 36)
   const baseRingInnerMat = new THREE.MeshBasicMaterial({
     color: COLOR_GOLD,
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.45,
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
     depthWrite: false,
@@ -104,12 +104,11 @@ export function initHologramScene(
   baseRingInner.rotation.x = Math.PI / 2
   baseGroup.add(baseRingInner)
 
-  // Đĩa phát sáng trung tâm
-  const baseDiscGeo = new THREE.CircleGeometry(0.38, 36)
+  const baseDiscGeo = new THREE.CircleGeometry(0.36, 36)
   const baseDiscMat = new THREE.MeshBasicMaterial({
     color: COLOR_CYAN,
     transparent: true,
-    opacity: 0.15,
+    opacity: 0.20,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   })
@@ -117,8 +116,7 @@ export function initHologramScene(
   baseDisc.rotation.x = Math.PI / 2
   baseGroup.add(baseDisc)
 
-  // Chóp nón phát quang mờ hướng lên từ bệ chiếu (Hologram projection beam)
-  const beamGeo = new THREE.CylinderGeometry(0.88, 0.38, 0.65, 32, 1, true)
+  const beamGeo = new THREE.CylinderGeometry(0.80, 0.36, 0.45, 32, 1, true)
   const beamMat = new THREE.MeshBasicMaterial({
     color: COLOR_CYAN,
     transparent: true,
@@ -128,13 +126,13 @@ export function initHologramScene(
     depthWrite: false,
   })
   const beam = new THREE.Mesh(beamGeo, beamMat)
-  beam.position.y = 0.32
+  beam.position.y = 0.225
   baseGroup.add(beam)
 
   rootGroup.add(baseGroup)
 
-  // 6.2 Vòng quét Scanline laser lơ lửng dọc thân
-  const scanGeo = new THREE.TorusGeometry(1.15, 0.007, 8, 64)
+  // 6.2 Vòng sóng quét Hologram dưới chân (quét ở tầng bệ chân, không cắt ngang mặt)
+  const scanGeo = new THREE.TorusGeometry(0.85, 0.006, 8, 48)
   const scanMat = new THREE.MeshBasicMaterial({
     color: COLOR_CYAN,
     transparent: true,
@@ -144,10 +142,11 @@ export function initHologramScene(
   })
   const scanRing = new THREE.Mesh(scanGeo, scanMat)
   scanRing.rotation.x = Math.PI / 2
-  tiltGroup.add(scanRing)
+  scanRing.position.y = -0.90
+  baseGroup.add(scanRing)
 
-  // 6.3 Đám mây hạt Photon Cyber (100 hạt quay quanh M-Tròn)
-  const particleCount = 100
+  // 6.3 Đám mây hạt Photon Cyber lơ lửng quanh M-Tròn
+  const particleCount = 70
   const particleGeo = new THREE.BufferGeometry()
   const particlePositions = new Float32Array(particleCount * 3)
   const baseRadii = new Float32Array(particleCount)
@@ -155,7 +154,7 @@ export function initHologramScene(
   const anglesTheta = new Float32Array(particleCount)
 
   for (let i = 0; i < particleCount; i++) {
-    const radius = 1.1 + Math.random() * 0.65
+    const radius = 1.05 + Math.random() * 0.45
     const phi = Math.acos(-1 + (2 * i) / particleCount)
     const theta = Math.sqrt(particleCount * Math.PI) * phi
 
@@ -164,7 +163,7 @@ export function initHologramScene(
     anglesTheta[i] = theta
 
     particlePositions[i * 3] = radius * Math.cos(theta) * Math.sin(phi)
-    particlePositions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi)
+    particlePositions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi) - 0.1
     particlePositions[i * 3 + 2] = radius * Math.cos(phi)
   }
 
@@ -172,9 +171,9 @@ export function initHologramScene(
 
   const particleMat = new THREE.PointsMaterial({
     color: COLOR_CYAN,
-    size: 0.035,
+    size: 0.028,
     transparent: true,
-    opacity: 0.75,
+    opacity: 0.70,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   })
@@ -207,16 +206,15 @@ export function initHologramScene(
       const dy = e.clientY - prevY
       dragRotY += dx * 0.015
       dragRotX += dy * 0.015
-      // Giới hạn góc nghiêng X để không bị lật ngược
-      dragRotX = Math.max(-1.2, Math.min(1.2, dragRotX))
+      dragRotX = Math.max(-1.1, Math.min(1.1, dragRotX))
       prevX = e.clientX
       prevY = e.clientY
     } else {
       const rect = container.getBoundingClientRect()
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1
       const ny = -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-      targetRotY = nx * 0.45
-      targetRotX = -ny * 0.35
+      targetRotY = nx * 0.40
+      targetRotX = -ny * 0.30
     }
   }
 
@@ -238,8 +236,8 @@ export function initHologramScene(
     if (e.gamma !== null && e.beta !== null) {
       const g = Math.max(-45, Math.min(45, e.gamma))
       const b = Math.max(0, Math.min(90, e.beta)) - 45
-      targetRotY = (g / 45) * 0.45
-      targetRotX = (b / 45) * 0.35
+      targetRotY = (g / 45) * 0.40
+      targetRotX = (b / 45) * 0.30
     }
   }
 
@@ -268,13 +266,11 @@ export function initHologramScene(
   // 9. Vòng lặp Render & Animation
   let animationFrameId: number
   const clock = new THREE.Clock()
-
   const targetHoloColor = new THREE.Color()
 
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate)
 
-    // Tạm dừng vẽ WebGL nếu container đang bị ẩn
     if (container.offsetParent === null && container.clientWidth === 0) {
       return
     }
@@ -289,15 +285,15 @@ export function initHologramScene(
 
     // 9.2 Màu sắc hiệu ứng hologram theo trạng thái
     if (isAlert) {
-      targetHoloColor.set(0xff4d4f)
+      targetHoloColor.set(0xff3b30)
     } else if (state.isListening) {
-      targetHoloColor.set(0xffd060)
+      targetHoloColor.set(0xffd700)
     } else if (state.isSpeaking) {
-      targetHoloColor.set(0x4de0ff)
+      targetHoloColor.set(0x00e5ff)
     } else if (state.isThinking) {
       targetHoloColor.set(0xffffff)
     } else {
-      targetHoloColor.set(0x3fd0ff)
+      targetHoloColor.set(0x00f0ff)
     }
 
     baseRingOuterMat.color.lerp(targetHoloColor, 0.08)
@@ -306,14 +302,14 @@ export function initHologramScene(
     beamMat.color.lerp(targetHoloColor, 0.08)
 
     // 9.3 Xoay bệ phát quang
-    baseRingOuter.rotation.z = t * 0.4
-    baseRingInner.rotation.z = -t * 0.6
+    baseRingOuter.rotation.z = t * 0.35
+    baseRingInner.rotation.z = -t * 0.55
 
-    // 9.4 Quét scanline dọc trục Y
+    // 9.4 Quét sóng hologram dưới chân
     const scanSpeed = isAlert ? 3.0 : state.isThinking ? 2.5 : 1.4
-    const scanY = Math.sin(t * scanSpeed) * 0.95
-    scanRing.position.y = scanY
-    scanMat.opacity = 0.2 + (1 - Math.abs(scanY) / 1.0) * 0.35
+    const scanScale = 0.8 + Math.sin(t * scanSpeed) * 0.2
+    scanRing.scale.set(scanScale, scanScale, 1)
+    scanMat.opacity = 0.2 + (1 - scanScale) * 0.4
 
     // 9.5 Chuyển động hạt photon
     const posAttr = particleGeo.attributes.position as THREE.BufferAttribute
@@ -327,7 +323,7 @@ export function initHologramScene(
 
       const curR = baseR + Math.sin(t * 2.0 + i) * 0.04
       positions[i * 3] = curR * Math.cos(theta) * Math.sin(phi)
-      positions[i * 3 + 1] = curR * Math.sin(theta) * Math.sin(phi)
+      positions[i * 3 + 1] = curR * Math.sin(theta) * Math.sin(phi) - 0.1
       positions[i * 3 + 2] = curR * Math.cos(phi)
     }
     posAttr.needsUpdate = true
@@ -362,10 +358,8 @@ export function initHologramScene(
       window.removeEventListener('deviceorientation', handleOrientation)
     }
 
-    // Dọn dẹp linh vật M-Tròn
     mtron.dispose()
 
-    // Dọn dẹp scene
     scene.traverse((obj) => {
       if (obj instanceof THREE.Mesh || obj instanceof THREE.Points) {
         obj.geometry.dispose()

@@ -6,6 +6,7 @@ import { unlockAudio } from '@/lib/audio/player'
 import { buildTag } from '@/lib/build-info'
 import { useStandalone } from '@/lib/useStandalone'
 import { authenticate, hasPlatformAuthenticator } from '@/lib/fido'
+import { initFingerprint } from '@/lib/fingerprint'
 import { useSession } from '@/lib/session'
 
 export function LockScreen() {
@@ -21,6 +22,7 @@ export function LockScreen() {
     void hasPlatformAuthenticator().then((ok) => {
       canBiometric.current = ok
     })
+    void initFingerprint()
   }, [])
 
   function handleAuthenticate() {
