@@ -96,7 +96,7 @@ export function FxForwardWidget() {
         <button
           type="button"
           onClick={handleApprove}
-          className="btn-primary-msb w-full mt-3.5 p-3.5 px-4 flex items-center justify-between font-bold text-caption tracking-[0.1em] uppercase text-white cursor-pointer"
+          className="btn-primary-msb text-[#13161B] w-full mt-3.5 p-3.5 px-4 flex items-center justify-between font-bold text-caption tracking-[0.1em] uppercase cursor-pointer"
         >
           <span>ĐẶT LỆNH KỲ HẠN · FIDO</span>
           <span className="font-bold text-small">→</span>

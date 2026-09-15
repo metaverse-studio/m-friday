@@ -39,7 +39,7 @@ export function FidoModal() {
     <AnimatePresence>
       {prompt && (
         <motion.div
-          className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-8 bg-[#0D2745]/95 backdrop-blur-md px-8"
+          className="absolute inset-0 z-[60] flex flex-col items-center justify-center gap-8 bg-[#0C0E12]/95 backdrop-blur-md px-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -52,7 +52,7 @@ export function FidoModal() {
             {!done && (
               <>
                 <div className="absolute inset-0 border-2 border-msb-gold rounded-[16px] animate-[scanRing_1s_ease-out_infinite]" />
-                <div className="absolute left-2 right-2 h-[2px] bg-msb-gold shadow-[0_0_16px_2px_rgba(247,144,9,0.7)] animate-[scanLine_0.9s_ease-in-out_infinite_alternate]" />
+                <div className="absolute left-2 right-2 h-[2px] bg-msb-gold shadow-[0_0_16px_2px_rgba(190,154,97,0.7)] animate-[scanLine_0.9s_ease-in-out_infinite_alternate]" />
               </>
             )}
 
@@ -65,7 +65,7 @@ export function FidoModal() {
               height="64"
               viewBox="0 0 24 24"
               fill="none"
-              stroke={done ? '#12B76A' : '#F79009'}
+              stroke={done ? '#12B76A' : '#BE9A61'}
               strokeWidth="1.2"
               strokeLinecap="round"
               className="relative transition-colors duration-300"

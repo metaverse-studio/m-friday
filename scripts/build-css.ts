@@ -39,16 +39,36 @@ async function buildCss() {
   --text-small--line-height: 20px;
   --text-caption: 12px;
   --text-caption--line-height: 16px;
-  --color-obsidian: #0D2745;
-  --color-sapphire: #101520;
-  --color-card: #131A27;
-  --color-dialogue: #0E1420;
-  --color-msb-orange: #F4600C;
-  --color-msb-tint: #FDDFCE;
-  --color-msb-gold: #F79009;
+  --color-obsidian: #13161B;
+  --color-sapphire: #22262F;
+  --color-card: #0C0E12;
+  --color-dialogue: #13161B;
+  --color-msb-orange: #BE9A61;
+  --color-msb-tint: #E5D7C0;
+  --color-msb-gold: #BE9A61;
   --color-signal: #12B76A;
   --color-alert: #F04438;
-  --color-link: #2E90FA;
+  --color-link: #BE9A61;
+  --color-mfirst-gold: #BE9A61;
+  --color-mfirst-gold-light: #E5D7C0;
+  --color-mfirst-gold-hover: #725C3A;
+  --color-mfirst-gold-focus: #987B4E;
+  --color-mfirst-gold-pressed: #D8C2A0;
+  --color-mfirst-bg-primary: #13161B;
+  --color-mfirst-bg-secondary: #22262F;
+  --color-mfirst-surface-card: #0C0E12;
+  --color-mfirst-surface-error: #601B16;
+  --color-mfirst-surface-warning: #633A04;
+  --color-mfirst-surface-success: #07492A;
+  --color-mfirst-surface-info: #123A64;
+  --color-mfirst-text-primary: #F0F0F1;
+  --color-mfirst-text-secondary: #CECFD2;
+  --color-mfirst-text-disable: #373A41;
+  --color-mfirst-text-placeholder: #61656C;
+  --color-mfirst-text-error: #F9B4AF;
+  --color-mfirst-text-warning: #FCD39D;
+  --color-mfirst-text-success: #A0E2C3;
+  --color-mfirst-text-info: #ABD3FD;
 }
 `
 
@@ -69,35 +89,36 @@ async function buildCss() {
 
   const customKeyframesAndGlobals = `
 :root {
-  /* --- Figma Paint Styles (Affine Matrix Decoded) --- */
-  --bg-eb-dark-1: linear-gradient(102deg, #0D2745 0%, #232323 49%, #4B372B 92%);
-  --bg-eb-dark-1-mobile: linear-gradient(115deg, #0D2745 0%, #232323 49%, #4B372B 92%);
-  --stroke-glass-1-sweep: linear-gradient(108deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.20) 33%, rgba(255, 255, 255, 0.60) 100%);
-  --stroke-glass-1: linear-gradient(180deg, rgba(255, 255, 255, 0.60) 0%, rgba(255, 255, 255, 0.20) 33%, rgba(255, 255, 255, 0) 100%);
-  --btn-primary-gradient: linear-gradient(0deg, #E45F35 0%, #FFA95A 100%);
-  --skeleton-gradient: linear-gradient(90deg, #EAF4FF 0%, #DEE5EF 100%);
+  /* --- mFirst Luxury Theme Paint Styles --- */
+  --bg-eb-dark-1: linear-gradient(115deg, #13161B 0%, #1A1D24 50%, #262019 100%);
+  --bg-eb-dark-1-mobile: linear-gradient(115deg, #13161B 0%, #1A1D24 50%, #262019 100%);
+  --stroke-glass-1-sweep: linear-gradient(108deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.20) 33%, rgba(190, 154, 97, 0.60) 100%);
+  --stroke-glass-1: linear-gradient(180deg, rgba(190, 154, 97, 0.50) 0%, rgba(255, 255, 255, 0.20) 33%, rgba(255, 255, 255, 0.05) 100%);
+  --btn-primary-gradient: linear-gradient(135deg, #BE9A61 0%, #D8C2A0 50%, #BE9A61 100%);
+  --skeleton-gradient: linear-gradient(90deg, #22262F 0%, #373A41 100%);
 
-  /* --- Brand & Functional Colors --- */
-  --color-brand-primary: #F4600C;
-  --color-brand-tint: #FDDFCE;
+  /* --- Brand & Functional Colors (mFirst) --- */
+  --color-brand-primary: #BE9A61;
+  --color-brand-tint: #E5D7C0;
   --color-success: #12B76A;
   --color-warning: #F79009;
-  --color-warning-surface: #FEF4E6;
-  --color-warning-border: #FDE9CE;
+  --color-warning-surface: #633A04;
+  --color-warning-border: #987B4E;
   --color-error: #F04438;
-  --color-link: #2E90FA;
-  --color-text-amount-spellout: #6B788E;
+  --color-error-surface: #601B16;
+  --color-link: #BE9A61;
+  --color-text-amount-spellout: #94979C;
 
-  /* --- Neutrals & Surfaces --- */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #94A3B8;
-  --color-text-muted: #64748B;
-  --color-placeholder: #A6AEBB;
+  /* --- Neutrals & Surfaces (mFirst) --- */
+  --color-text-primary: #F0F0F1;
+  --color-text-secondary: #CECFD2;
+  --color-text-muted: #94979C;
+  --color-placeholder: #61656C;
   --color-divider: rgba(255, 255, 255, 0.12);
-  --color-surface-card: rgba(19, 26, 39, 0.85);
-  --color-surface-input: #131A27;
-  --color-scrim: rgba(29, 41, 57, 0.60);
-  --color-footer-glass: rgba(16, 21, 32, 0.85);
+  --color-surface-card: rgba(12, 14, 18, 0.40);
+  --color-surface-input: #13161B;
+  --color-scrim: rgba(12, 14, 18, 0.60);
+  --color-footer-glass: rgba(19, 22, 27, 0.85);
 
   /* --- Radii Tokens --- */
   --radius-xs: 4px;
@@ -109,8 +130,8 @@ async function buildCss() {
   --radius-circle: 9999px;
 
   /* --- Shadows & Blur --- */
-  --shadow-center: 0 0 4px rgba(29, 41, 57, 0.15);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-center: 0 0 4px rgba(12, 14, 18, 0.15);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.50);
   --blur-glass: 24px;
 }
 
@@ -153,9 +174,9 @@ async function buildCss() {
 }
 
 html, body {
-  background-color: #0D2745;
-  background-image: linear-gradient(115deg, #0D2745 0%, #232323 49%, #4B372B 92%);
-  color: white;
+  background-color: #13161B;
+  background-image: linear-gradient(115deg, #13161B 0%, #1A1D24 50%, #262019 100%);
+  color: #F0F0F1;
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
@@ -169,37 +190,38 @@ html, body {
   scrollbar-width: none;
 }
 
-/* --- Design System Component Classes --- */
+/* --- Design System Component Classes (mFirst) --- */
 .card-glass {
-  background-color: rgba(19, 26, 39, 0.85);
+  background-color: rgba(12, 14, 18, 0.40);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-top-color: rgba(255, 255, 255, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(190, 154, 97, 0.40);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50);
 }
 
 .card-eb-dark {
-  background: linear-gradient(102deg, #0D2745 0%, #232323 49%, #4B372B 92%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-top-color: rgba(255, 255, 255, 0.60);
+  background: linear-gradient(115deg, #13161B 0%, #1A1D24 50%, #262019 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(190, 154, 97, 0.40);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
 
 .btn-primary-msb {
-  background: linear-gradient(0deg, #E45F35 0%, #FFA95A 100%);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, #BE9A61 0%, #D8C2A0 50%, #BE9A61 100%);
+  color: #13161B;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 700;
   transition: all 0.15s ease-in-out;
 }
 .btn-primary-msb:hover {
-  opacity: 0.92;
+  opacity: 0.94;
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(190, 154, 97, 0.45);
 }
 .btn-primary-msb:active {
   transform: translateY(0);
@@ -207,37 +229,37 @@ html, body {
 
 .btn-secondary-msb {
   background: transparent;
-  border: 1px solid #F4600C;
-  color: #F4600C;
+  border: 1px solid #BE9A61;
+  color: #BE9A61;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.15s ease-in-out;
 }
 .btn-secondary-msb:hover {
-  background: rgba(244, 96, 12, 0.1);
+  background: rgba(190, 154, 97, 0.12);
 }
 
 .chip-pill {
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #F0F0F1;
   font-size: 12px;
   line-height: 16px;
   padding: 6px 12px;
   transition: all 0.15s ease-in-out;
 }
 .chip-pill:hover {
-  border-color: rgba(247, 144, 9, 0.6);
-  background: rgba(247, 144, 9, 0.12);
+  border-color: rgba(190, 154, 97, 0.6);
+  background: rgba(190, 154, 97, 0.15);
   color: #FFFFFF;
 }
 
 .bg-eb-gradient {
-  background: linear-gradient(102deg, #0D2745 0%, #232323 49%, #4B372B 92%);
+  background: linear-gradient(102deg, #13161B 0%, #1A1D24 50%, #262019 100%);
 }
 .bg-eb-gradient-mobile {
-  background: linear-gradient(115deg, #0D2745 0%, #232323 49%, #4B372B 92%);
+  background: linear-gradient(115deg, #13161B 0%, #1A1D24 50%, #262019 100%);
 }
 `
 

@@ -43,7 +43,7 @@ describe('API POST /api/reply', () => {
     const json = (await res.json()) as { reply: string; source: string }
     expect(json.source).toBe('fixed')
     expect(json.reply).toBe(INTENTS.GREETING.fallbackLine)
-    expect(json.reply).toContain('Em là Friday')
+    expect(json.reply).toContain('Em là M-Tròn')
     expect(json.reply).toContain('MSB Business')
   })
 

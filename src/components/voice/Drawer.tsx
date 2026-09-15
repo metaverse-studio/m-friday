@@ -38,14 +38,14 @@ export function Drawer({ onSelect }: Props) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="absolute inset-0 z-50 flex flex-col justify-end bg-[#1D2939]/70 backdrop-blur-sm"
+          className="absolute inset-0 z-50 flex flex-col justify-end bg-[#0C0E12]/70 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => toggleDrawer(false)}
         >
           <motion.div
-            className="max-h-[85dvh] w-full max-w-4xl mx-auto overflow-y-auto bg-[#101520] border-t md:border border-white/12 border-t-white/50 rounded-t-[16px] md:rounded-[16px] p-5 md:p-7 pb-8 no-scrollbar shadow-[0_-10px_40px_rgba(0,0,0,0.6)]"
+            className="max-h-[85dvh] w-full max-w-4xl mx-auto overflow-y-auto bg-[#22262F] border-t md:border border-white/12 border-t-white/50 rounded-t-[16px] md:rounded-[16px] p-5 md:p-7 pb-8 no-scrollbar shadow-[0_-10px_40px_rgba(0,0,0,0.6)]"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -88,7 +88,7 @@ export function Drawer({ onSelect }: Props) {
                           toggleDrawer(false)
                           onSelect(id)
                         }}
-                        className="bg-[#131A27] hover:bg-[#1C2536] hover:text-msb-gold p-3 text-left font-medium text-caption text-white/90 transition-colors cursor-pointer"
+                        className="bg-[#13161B] hover:bg-[#1A1E27] hover:text-msb-gold p-3 text-left font-medium text-caption text-white/90 transition-colors cursor-pointer"
                       >
                         {getIntent(id).label}
                       </button>

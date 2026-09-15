@@ -46,9 +46,9 @@ export function Dashboard() {
 
   return (
     <main className="h-dvh max-h-dvh bg-eb-gradient-mobile md:bg-eb-gradient text-white flex flex-col justify-center items-center p-0 md:p-6 lg:p-8 overflow-hidden font-sans">
-      <div className="w-full max-w-md md:max-w-2xl lg:max-w-6xl h-full md:h-auto md:min-h-0 md:max-h-[92vh] my-auto flex flex-col relative bg-[#0D2745]/90 backdrop-blur-[24px] md:border md:border-white/12 md:border-t-white/60 md:rounded-[24px] md:shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden">
+      <div className="w-full max-w-md md:max-w-2xl lg:max-w-6xl h-full md:h-auto md:min-h-0 md:max-h-[92vh] my-auto flex flex-col relative bg-[#13161B]/95 backdrop-blur-[24px] md:border md:border-white/12 md:border-t-white/60 md:rounded-[24px] md:shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden">
         {/* Header Block - chung cho cả mobile và desktop */}
-        <header className="flex-none pt-4 sm:pt-6 md:pt-5 px-4 sm:px-5 md:px-7 bg-[#0D2745]/70 backdrop-blur-[16px]">
+        <header className="flex-none pt-4 sm:pt-6 md:pt-5 px-4 sm:px-5 md:px-7 bg-[#13161B]/75 backdrop-blur-[16px]">
           {/* Top identity bar */}
           <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-white/12">
             <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export function Dashboard() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
-                      FRIDAY · TRỢ LÝ
+                      M-TRÒN · TRỢ LÝ
                     </span>
                     <FridayLine />
                     <button
@@ -149,11 +149,11 @@ export function Dashboard() {
                     />
                   </div>
 
-                  {/* Friday Welcome Dialogue Card */}
+                  {/* M-Tròn Welcome Dialogue Card */}
                   <div className="mt-2.5 w-full p-3 rounded-[12px] bg-card/75 border border-white/10 backdrop-blur-md text-center">
                     <div className="flex items-center justify-center gap-1.5 mb-1">
                       <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
-                        FRIDAY · TRỢ LÝ QHKH
+                        M-TRÒN · TRỢ LÝ QHKH
                       </span>
                       <FridayLine />
                     </div>
@@ -208,7 +208,7 @@ export function Dashboard() {
           </div>
 
           {/* Bottom Control Bar */}
-          <footer className="flex-none border-t border-white/12 bg-[#0D2745]/90 backdrop-blur-md">
+          <footer className="flex-none border-t border-white/12 bg-[#13161B]/95 backdrop-blur-md">
             <ChipBar
               onSelect={(id) => void runIntent(id)}
               onSlotPick={(value) => void fillSlot(value)}
@@ -219,15 +219,15 @@ export function Dashboard() {
               <button
                 type="button"
                 onClick={handleTalkClick}
-                className="flex-1 flex items-center justify-between gap-2.5 p-3 sm:p-3.5 px-4 sm:px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer text-left font-semibold text-caption tracking-[0.08em] uppercase transition-all"
+                className="flex-1 flex items-center justify-between gap-2.5 p-3 sm:p-3.5 px-4 sm:px-5 btn-primary-msb text-[#13161B] shadow-[0_4px_16px_rgba(190,154,97,0.35)] cursor-pointer text-left font-bold text-caption tracking-[0.08em] uppercase transition-all"
               >
                 <span>{talkButtonText}</span>
                 <span className="flex items-end gap-0.5 h-3.5">
-                  <i className="w-[2.5px] h-[40%] bg-white/85 rounded-full" />
-                  <i className="w-[2.5px] h-[75%] bg-white/85 rounded-full" />
-                  <i className="w-[2.5px] h-full bg-white rounded-full" />
-                  <i className="w-[2.5px] h-[60%] bg-white/85 rounded-full" />
-                  <i className="w-[2.5px] h-[30%] bg-white/85 rounded-full" />
+                  <i className="w-[2.5px] h-[40%] bg-[#13161B]/85 rounded-full" />
+                  <i className="w-[2.5px] h-[75%] bg-[#13161B]/85 rounded-full" />
+                  <i className="w-[2.5px] h-full bg-[#13161B] rounded-full" />
+                  <i className="w-[2.5px] h-[60%] bg-[#13161B]/85 rounded-full" />
+                  <i className="w-[2.5px] h-[30%] bg-[#13161B]/85 rounded-full" />
                 </span>
               </button>
 
@@ -262,10 +262,10 @@ export function Dashboard() {
               <div className="p-4 border-b border-white/12 bg-card/75 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-4 h-4 rounded-full bg-msb-gold/20 border border-msb-gold/60 flex items-center justify-center font-bold text-caption text-msb-gold">
-                    F
+                    M
                   </div>
                   <span className="font-bold text-caption tracking-[0.16em] text-msb-gold uppercase">
-                    FRIDAY · TRỢ LÝ QHKH DOANH NGHIỆP
+                    M-TRÒN · TRỢ LÝ QHKH DOANH NGHIỆP
                   </span>
                   <FridayLine />
                 </div>
@@ -323,7 +323,7 @@ export function Dashboard() {
             </div>
 
             {/* Bottom Actions for Desktop */}
-            <div className="border-t border-white/12 bg-[#0D2745]/90 backdrop-blur-md pb-5 pt-1">
+            <div className="border-t border-white/12 bg-[#13161B]/95 backdrop-blur-md pb-5 pt-1">
               <div className="mb-3">
                 <ChipBar
               onSelect={(id) => void runIntent(id)}
@@ -336,15 +336,15 @@ export function Dashboard() {
                 <button
                   type="button"
                   onClick={handleTalkClick}
-                  className="flex-1 flex items-center justify-between gap-2.5 p-3.5 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer text-left font-semibold text-caption tracking-[0.08em] uppercase transition-all"
+                  className="flex-1 flex items-center justify-between gap-2.5 p-3.5 px-5 btn-primary-msb text-[#13161B] shadow-[0_4px_16px_rgba(190,154,97,0.35)] cursor-pointer text-left font-bold text-caption tracking-[0.08em] uppercase transition-all"
                 >
                   <span>{talkButtonText}</span>
                   <span className="flex items-end gap-0.5 h-3.5">
-                    <i className="w-[2.5px] h-[40%] bg-white/85 rounded-full" />
-                    <i className="w-[2.5px] h-[75%] bg-white/85 rounded-full" />
-                    <i className="w-[2.5px] h-full bg-white rounded-full" />
-                    <i className="w-[2.5px] h-[60%] bg-white/85 rounded-full" />
-                    <i className="w-[2.5px] h-[30%] bg-white/85 rounded-full" />
+                    <i className="w-[2.5px] h-[40%] bg-[#13161B]/85 rounded-full" />
+                    <i className="w-[2.5px] h-[75%] bg-[#13161B]/85 rounded-full" />
+                    <i className="w-[2.5px] h-full bg-[#13161B] rounded-full" />
+                    <i className="w-[2.5px] h-[60%] bg-[#13161B]/85 rounded-full" />
+                    <i className="w-[2.5px] h-[30%] bg-[#13161B]/85 rounded-full" />
                   </span>
                 </button>
 
@@ -361,17 +361,17 @@ export function Dashboard() {
           </div>
 
           {/* Right Column: Active Widget Canvas */}
-          <div className="flex-1 flex flex-col overflow-y-auto p-6 lg:p-8 bg-[#090E17]/60 backdrop-blur-md no-scrollbar">
+          <div className="flex-1 flex flex-col overflow-y-auto p-6 lg:p-8 bg-[#0C0E12]/60 backdrop-blur-md no-scrollbar">
             {!activeIntent || activeIntent === 'GREETING' ? (
               <div className="h-full flex flex-col justify-center items-center text-center p-8 card-glass">
                 <div className="w-14 h-14 rounded-full bg-msb-gold/15 border border-msb-gold/60 flex items-center justify-center font-bold text-title text-msb-gold mb-4">
-                  F
+                  M
                 </div>
                 <h3 className="font-bold text-h3 text-white m-0 tracking-tight">
                   Chào mừng Mr Stark đến với MSB Business
                 </h3>
                 <p className="mt-3 max-w-lg font-normal text-small text-white/70">
-                  Em là Friday, Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh. Anh có thể ra lệnh bằng giọng nói tiếng Việt bằng cách bấm <span className="text-msb-orange font-semibold">CHẠM ĐỂ NÓI</span> hoặc chọn nhanh các lệnh nghiệp vụ ở bảng điều khiển bên trái.
+                  Em là M-Tròn, Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh. Anh có thể ra lệnh bằng giọng nói tiếng Việt bằng cách bấm <span className="text-msb-orange font-semibold">CHẠM ĐỂ NÓI</span> hoặc chọn nhanh các lệnh nghiệp vụ ở bảng điều khiển bên trái.
                 </p>
                 <div className="grid grid-cols-2 gap-3 mt-6 w-full max-w-md">
                   <button

@@ -13,7 +13,7 @@ export function SessionSummaryWidget() {
   return (
     <div className="card-glass p-5 animate-[riseIn_0.3s_ease-out]">
       <div className="flex items-center gap-2">
-        <div className="w-3.5 h-3.5 rounded-full bg-signal shrink-0 flex items-center justify-center text-caption text-[#0D2745] font-bold">
+        <div className="w-3.5 h-3.5 rounded-full bg-signal shrink-0 flex items-center justify-center text-caption text-[#13161B] font-bold">
           ✓
         </div>
         <p className="m-0 font-bold text-caption tracking-[0.16em] uppercase text-signal">

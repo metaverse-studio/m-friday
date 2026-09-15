@@ -17,7 +17,7 @@ export function UnknownWidget() {
       </p>
 
       <div className="flex items-center gap-3 mt-4 border-t border-white/12 pt-3.5">
-        <div className="w-[38px] h-[38px] rounded-full bg-msb-gold flex items-center justify-center font-bold text-small text-[#0D2745] shrink-0">
+        <div className="w-[38px] h-[38px] rounded-full bg-msb-gold flex items-center justify-center font-bold text-small text-[#13161B] shrink-0">
           A
         </div>
         <div>

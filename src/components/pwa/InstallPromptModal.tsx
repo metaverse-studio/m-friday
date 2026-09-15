@@ -86,8 +86,8 @@ export function InstallPromptModal() {
   if (standalone || !isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-[#090E17]/75 backdrop-blur-sm animate-[riseIn_0.25s_ease-out]">
-      <div className="w-full max-w-sm sm:max-w-md bg-[#0D2745] border border-white/15 border-t-white/50 rounded-[20px] p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.85)] text-white relative">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-[#0C0E12]/75 backdrop-blur-sm animate-[riseIn_0.25s_ease-out]">
+      <div className="w-full max-w-sm sm:max-w-md bg-[#22262F] border border-white/15 border-t-white/50 rounded-[20px] p-5 sm:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.85)] text-white relative">
         {/* Nút đóng */}
         <button
           type="button"
@@ -147,7 +147,7 @@ export function InstallPromptModal() {
             <button
               type="button"
               onClick={handleInstallClick}
-              className="w-full flex items-center justify-center gap-2 p-3.5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer font-bold text-caption uppercase tracking-wider transition-all"
+              className="w-full flex items-center justify-center gap-2 p-3.5 btn-primary-msb text-[#13161B] shadow-[0_4px_16px_rgba(190,154,97,0.35)] cursor-pointer font-bold text-caption uppercase tracking-wider transition-all"
             >
               <Download className="w-4 h-4" />
               <span>Thêm vào màn hình chính</span>

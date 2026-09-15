@@ -3,9 +3,9 @@ import { splitSentences } from './player'
 
 describe('splitSentences', () => {
   test('cắt theo dấu chấm', () => {
-    expect(splitSentences('Chào anh Stark. Em là Friday.')).toEqual([
+    expect(splitSentences('Chào anh Stark. Em là M-Tròn.')).toEqual([
       'Chào anh Stark.',
-      'Em là Friday.',
+      'Em là M-Tròn.',
     ])
   })
 

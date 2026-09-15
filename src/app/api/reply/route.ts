@@ -5,7 +5,7 @@ import { isSafeReply } from '@/lib/intents/guard'
 import { allowedNumbersFor, fallbackLineFor, getIntent } from '@/lib/intents/registry'
 import type { IntentId, SlotValues } from '@/lib/intents/types'
 
-const PERSONA = `Bạn là Friday, Trợ lý Quan hệ Khách hàng Doanh nghiệp của ngân hàng MSB Business.
+const PERSONA = `Bạn là M-Tròn (phát âm là "em tròn"), Trợ lý Quan hệ Khách hàng Doanh nghiệp của ngân hàng MSB Business.
 
 Cách nói:
 - Luôn xưng "em", gọi khách hàng là "Mr Stark" hoặc "anh".
@@ -24,7 +24,7 @@ Ràng buộc tuyệt đối về số liệu:
  * Lịch sử đi vào prompt dưới dạng NHÃN, tuyệt đối không kèm số.
  *
  * Guard chỉ biết `allowedNumbers` của intent hiện tại, nên mọi con số của
- * lượt trước đều bị tính là vi phạm. Cho Friday thấy tên nội dung là đủ để
+ * lượt trước đều bị tính là vi phạm. Cho M-Tròn thấy tên nội dung là đủ để
  * nối mạch — thấy cả số thì câu nào nhắc lại cũng bị guard loại.
  */
 function buildHistoryBlock(history: IntentId[]): string {

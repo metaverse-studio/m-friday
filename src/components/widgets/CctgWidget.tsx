@@ -30,7 +30,7 @@ export function CctgWidget() {
         <p className="font-bold text-caption tracking-[0.16em] uppercase text-msb-gold m-0">
           Chứng chỉ tiền gửi MSB Business
         </p>
-        <span className="font-bold text-caption tracking-[0.08em] bg-msb-gold text-[#0D2745] px-2 py-1 rounded-full">
+        <span className="font-bold text-caption tracking-[0.08em] bg-msb-gold text-[#13161B] px-2 py-1 rounded-full">
           ƯU ĐÃI
         </span>
       </div>
@@ -81,7 +81,7 @@ export function CctgWidget() {
         <button
           type="button"
           onClick={handleApprove}
-          className="btn-primary-msb w-full mt-3.5 p-3.5 px-4 flex items-center justify-between font-bold text-caption tracking-[0.1em] uppercase text-white cursor-pointer"
+          className="btn-primary-msb text-[#13161B] w-full mt-3.5 p-3.5 px-4 flex items-center justify-between font-bold text-caption tracking-[0.1em] uppercase cursor-pointer"
         >
           <span>DUYỆT MUA NGAY · FIDO</span>
           <span className="font-bold text-small">→</span>

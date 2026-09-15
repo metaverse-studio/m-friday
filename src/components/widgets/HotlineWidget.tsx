@@ -41,8 +41,8 @@ export function HotlineWidget() {
 
       {/* Avatar & Contact info */}
       <div className="flex items-center gap-3.5 mt-4">
-        <div className="w-14 h-14 rounded-full border border-msb-gold/40 bg-gradient-to-br from-[#1E3A5F] to-[#0D2745] flex items-center justify-center font-bold text-caption text-center text-white/80 shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
-          RM<br />Friday
+        <div className="w-14 h-14 rounded-full border border-msb-gold/40 bg-gradient-to-br from-[#22262F] to-[#13161B] flex items-center justify-center font-bold text-caption text-center text-white/80 shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+          RM<br />M-Tròn
         </div>
         <div>
           <p className="font-bold text-title tracking-[-0.01em] text-white m-0">

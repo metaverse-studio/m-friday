@@ -36,7 +36,7 @@ export function Orb({ onCancel, onStop }: Props) {
     <AnimatePresence>
       {isListening && (
         <motion.div
-          className="absolute inset-0 z-40 flex flex-col items-center justify-between bg-[#0D2745]/95 p-6 pt-10 pb-8 backdrop-blur-md"
+          className="absolute inset-0 z-40 flex flex-col items-center justify-between bg-[#0C0E12]/95 p-6 pt-10 pb-8 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -70,7 +70,7 @@ export function Orb({ onCancel, onStop }: Props) {
             <button
               type="button"
               onClick={handleStop}
-              className="w-full p-3.5 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] font-bold text-caption tracking-[0.08em] uppercase text-white transition-all cursor-pointer text-center"
+              className="w-full p-3.5 px-5 btn-primary-msb text-[#13161B] shadow-[0_4px_16px_rgba(190,154,97,0.35)] font-bold text-caption tracking-[0.08em] uppercase transition-all cursor-pointer text-center"
             >
               NÓI XONG · GỬI YÊU CẦU →
             </button>

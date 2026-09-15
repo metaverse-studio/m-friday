@@ -83,7 +83,7 @@ export function HologramRM({
         className={`relative flex items-center justify-center cursor-pointer select-none touch-none ${
           interactive ? 'hover:scale-105 active:scale-95 transition-transform' : ''
         }`}
-        title="Linh vật M-Tròn · Trợ lý ảo Friday · Chạm hoặc kéo để tương tác"
+        title="Linh vật M-Tròn · Trợ lý ảo M-Tròn · Chạm hoặc kéo để tương tác"
       />
 
       {showStatusBadge && (

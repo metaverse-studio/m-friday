@@ -6,7 +6,7 @@ export type Phase = 'locked' | 'dashboard'
 
 const INITIAL_CHIPS: IntentId[] = ['CASH_FLOW', 'RECENT_ACTIONS', 'TRADE_FINANCE']
 
-/** Slot Friday vừa hỏi và đang chờ khách trả lời */
+/** Slot M-Tròn vừa hỏi và đang chờ khách trả lời */
 export type PendingSlot = {
   intentId: IntentId
   slot: SlotSpec
@@ -53,7 +53,7 @@ type SessionState = {
 }
 
 const DEFAULT_LINE =
-  'Chào buổi sáng Mr Stark. Chúc anh một ngày làm việc hiệu quả tại MSB Business. Em là Friday — Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh.'
+  'Chào buổi sáng Mr Stark. Chúc anh một ngày làm việc hiệu quả tại MSB Business. Em là M-Tròn — Trợ lý Quan hệ Khách hàng Doanh nghiệp của anh.'
 
 export const useSession = create<SessionState>((set) => ({
   phase: 'locked',

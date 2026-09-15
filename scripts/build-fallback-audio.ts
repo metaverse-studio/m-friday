@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises'
+import { normalizePronunciation } from '../src/lib/audio/pronunciation'
 import { edgeTts } from '../src/lib/audio/providers/edge-tts'
 import { INTENTS } from '../src/lib/intents/registry'
 
@@ -12,9 +13,14 @@ async function main() {
 
     process.stdout.write(`Đang sinh ${intent.id}… `)
     try {
-      const audio = await edgeTts.synthesize(intent.fallbackLine)
-      await writeFile(`${OUTPUT_DIR}/${intent.id}.mp3`, audio)
-      console.log(`xong (${(audio.length / 1024).toFixed(0)} KB)`)
+      const spokenText = normalizePronunciation(intent.fallbackLine)
+      const res = await edgeTts.synthesize(spokenText)
+      if (res?.audio) {
+        await writeFile(`${OUTPUT_DIR}/${intent.id}.mp3`, res.audio)
+        console.log(`xong (${(res.audio.length / 1024).toFixed(0)} KB)`)
+      } else {
+        console.log('không thể sinh âm thanh')
+      }
     } catch (error) {
       console.error('thất bại:', error)
     }

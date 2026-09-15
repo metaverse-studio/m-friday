@@ -13,7 +13,7 @@ export function FraudAlertWidget() {
   }
 
   return (
-    <div className="rounded-[12px] bg-[#1A1417]/95 border border-alert/50 p-5 shadow-[0_8px_32px_rgba(240,68,56,0.15)] animate-[riseIn_0.3s_ease-out]">
+    <div className="rounded-[12px] bg-[#601B16]/85 border border-alert/50 p-5 shadow-[0_8px_32px_rgba(240,68,56,0.15)] animate-[riseIn_0.3s_ease-out]">
       <div className="flex items-center gap-2">
         <div className="w-3.5 h-3.5 rounded-full bg-alert flex items-center justify-center text-white text-caption font-bold">
           !
@@ -47,7 +47,7 @@ export function FraudAlertWidget() {
         ))}
       </div>
 
-      <p className="mt-3.5 bg-alert/15 border border-alert/30 rounded-[8px] p-3 font-medium text-caption text-alert m-0">
+      <p className="mt-3.5 bg-[#601B16] border border-alert/30 rounded-[8px] p-3 font-medium text-caption text-[#F9B4AF] m-0">
         Em đã tạm giữ lệnh này, chờ anh xác nhận.
       </p>
 

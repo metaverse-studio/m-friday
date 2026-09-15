@@ -53,7 +53,7 @@ export function LockScreen() {
 
   return (
     <main className="h-dvh max-h-dvh bg-eb-gradient-mobile md:bg-eb-gradient text-white flex flex-col justify-center items-center p-0 sm:p-4 md:p-6 overflow-hidden font-sans">
-      <div className="w-full max-w-md md:max-w-[480px] h-full sm:h-auto sm:min-h-0 sm:max-h-[92vh] my-auto flex flex-col justify-between p-5 pt-6 pb-6 sm:p-6 md:p-8 md:border md:border-white/12 md:border-t-white/60 md:rounded-[24px] md:bg-[#0D2745]/90 md:backdrop-blur-[24px] md:shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-y-auto no-scrollbar">
+      <div className="w-full max-w-md md:max-w-[480px] h-full sm:h-auto sm:min-h-0 sm:max-h-[92vh] my-auto flex flex-col justify-between p-5 pt-6 pb-6 sm:p-6 md:p-8 md:border md:border-white/12 md:border-t-white/60 md:rounded-[24px] md:bg-[#13161B]/95 md:backdrop-blur-[24px] md:shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-y-auto no-scrollbar">
         <div>
           {/* Header */}
           <div className="flex items-start justify-between border-b border-white/12 pb-3">
@@ -101,7 +101,7 @@ export function LockScreen() {
             {scanning && (
               <>
                 <div className="absolute inset-0 border-2 border-msb-gold rounded-[16px] animate-[scanRing_1.2s_ease-out_infinite]" />
-                <div className="absolute left-2 right-2 h-[2px] bg-msb-gold shadow-[0_0_18px_2px_rgba(247,144,9,0.7)] animate-[scanLine_1.1s_ease-in-out_infinite_alternate]" />
+                <div className="absolute left-2 right-2 h-[2px] bg-msb-gold shadow-[0_0_18px_2px_rgba(190,154,97,0.7)] animate-[scanLine_1.1s_ease-in-out_infinite_alternate]" />
               </>
             )}
 
@@ -114,7 +114,7 @@ export function LockScreen() {
               height="58"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#F79009"
+              stroke="#BE9A61"
               strokeWidth="1.2"
               strokeLinecap="round"
               className="relative w-12 h-12 sm:w-[58px] sm:h-[58px]"
@@ -138,7 +138,7 @@ export function LockScreen() {
             type="button"
             onClick={handleAuthenticate}
             disabled={scanning}
-            className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 px-5 btn-primary-msb shadow-[0_4px_16px_rgba(244,96,12,0.35)] cursor-pointer disabled:opacity-80 font-bold text-caption sm:text-small tracking-[0.08em] uppercase transition-all"
+            className="w-full flex items-center justify-between gap-3 p-3.5 sm:p-4 px-5 btn-primary-msb text-[#13161B] shadow-[0_4px_16px_rgba(190,154,97,0.35)] cursor-pointer disabled:opacity-80 font-bold text-caption sm:text-small tracking-[0.08em] uppercase transition-all"
           >
             <span>XÁC THỰC FIDO BIOMETRIC</span>
             <span className="font-bold text-small">→</span>
